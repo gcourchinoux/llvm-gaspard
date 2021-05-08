@@ -26,3 +26,5 @@ include "Chiara64InstrFormats.td"
   
 def ADD :  NORMAL< 0b00101110, (outs GPR:$ra), (ins GPR:$rx),
   "add", [(set GPR:$ra, (not GPR:$rx))]>;
+def SUB :  NORMAL< 0b00101110, (outs GPR:$ra), (ins GPR:$rx),
+  "sub", [(set GPR:$ra, (not GPR:$rx))]>;
