@@ -45,6 +45,12 @@ class Chiara6432Inst<AddrMode am, bits<6> opcode, dag outs, dag ins, string asms
   field bits<32> Inst;
   let Inst{31 - 26} = opcode;
 }
+class Chiara6424Inst<AddrMode am, bits<8> opcode, dag outs, dag ins, string asmstr,
+                 list<dag> pattern>
+    : Chiara64Inst<am, 3, outs, ins, asmstr, pattern> {
+  field bits<24> Inst;
+  let Inst{0 - 7} = opcode;
+}
 
 // Chiara64 32-bit instruction
 // Format< OP[6] | Offset[26] >
@@ -436,6 +442,16 @@ class R_XXZ<bits<6> sop, bits<5> pcode, dag outs, dag ins, string op,
   let Inst{15 - 10} = sop;
   let Inst{9 - 5} = pcode;
   let Inst{4 - 0} = rz;
+}
+class NORMAL<bits<8> opcode,  dag outs, dag ins, string op,
+            list<dag> pattern>
+    : Chiara6424Inst<AddrModeNone, opcode, outs, ins, !strconcat(op, "\t$GPR, $GPR1"),
+                 pattern> {
+  bits<8> GPR;
+  bits<8> GPR1;
+  let Inst{8 - 15} = GPR;
+  let Inst{16 - 23} = GPR1;
+  
 }
 
 // Format< OP[6] | RY[5] | RX[5] | SOP[6] | PCODE[5] | 00000[5] >

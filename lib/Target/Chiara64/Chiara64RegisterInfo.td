@@ -145,12 +145,12 @@ let RegAltNameIndices = [ABIRegAltName] in {
 
 // The order of registers represents the preferred allocation sequence.
 // Registers are listed in the order caller-save, callee-save, specials.
-def GPR : RegisterClass<"Chiara64", [i32], 32,
+def GPR : RegisterClass<"Chiara64", [i64], 64,
                         (add (sequence "R%u", 0, 3), (sequence "R%u", 12, 13),
                              (sequence "R%u", 18, 25), R15, (sequence "R%u", 4, 11),
                              (sequence "R%u", 16, 17), (sequence "R%u", 26, 27), R28,
                              (sequence "R%u", 29, 30), R14, R31)> {
-  let Size = 32;
+  let Size = 64;
 }
 
 def GPRPair : RegisterClass<"Chiara64", [untyped], 32, (add GPRTuple)> {
