@@ -49,46 +49,46 @@ let Namespace = "Chiara64" in {
 } // Namespace = "Chiara64"
 
 let RegAltNameIndices = [ABIRegAltName] in {
-  def R0 : Chiara64Reg<0, "r0", ["a0"]>, DwarfRegNum<[0]>;
-  def R1 : Chiara64Reg<1, "r1", ["a1"]>, DwarfRegNum<[1]>;
-  def R2 : Chiara64Reg<2, "r2", ["a2"]>, DwarfRegNum<[2]>;
-  def R3 : Chiara64Reg<3, "r3", ["a3"]>, DwarfRegNum<[3]>;
-  def R4 : Chiara64Reg<4, "r4", ["l0"]>, DwarfRegNum<[4]>;
-  def R5 : Chiara64Reg<5, "r5", ["l1"]>, DwarfRegNum<[5]>;
-  def R6 : Chiara64Reg<6, "r6", ["l2"]>, DwarfRegNum<[6]>;
-  def R7 : Chiara64Reg<7, "r7", ["l3"]>, DwarfRegNum<[7]>;
-  def R8 : Chiara64Reg<8, "r8", ["l4"]>, DwarfRegNum<[8]>;
-  def R9 : Chiara64Reg<9, "r9", ["l5"]>, DwarfRegNum<[9]>;
-  def R10 : Chiara64Reg<10, "r10", ["l6"]>, DwarfRegNum<[10]>;
-  def R11 : Chiara64Reg<11, "r11", ["l7"]>, DwarfRegNum<[11]>;
-  def R12 : Chiara64Reg<12, "r12", ["t0"]>, DwarfRegNum<[12]>;
-  def R13 : Chiara64Reg<13, "r13", ["t1"]>, DwarfRegNum<[13]>;
-  def R14 : Chiara64Reg<14, "r14", ["sp"]>, DwarfRegNum<[14]>;
-  def R15 : Chiara64Reg<15, "r15", ["lr"]>, DwarfRegNum<[15]>;
-  def R16 : Chiara64Reg<16, "r16", ["l8"]>, DwarfRegNum<[16]>;
-  def R17 : Chiara64Reg<17, "r17", ["l9"]>, DwarfRegNum<[17]>;
-  def R18 : Chiara64Reg<18, "r18", ["t2"]>, DwarfRegNum<[18]>;
-  def R19 : Chiara64Reg<19, "r19", ["t3"]>, DwarfRegNum<[19]>;
-  def R20 : Chiara64Reg<20, "r20", ["t4"]>, DwarfRegNum<[20]>;
-  def R21 : Chiara64Reg<21, "r21", ["t5"]>, DwarfRegNum<[21]>;
-  def R22 : Chiara64Reg<22, "r22", ["t6"]>, DwarfRegNum<[22]>;
-  def R23 : Chiara64Reg<23, "r23", ["t7"]>, DwarfRegNum<[23]>;
-  def R24 : Chiara64Reg<24, "r24", ["t8"]>, DwarfRegNum<[24]>;
-  def R25 : Chiara64Reg<25, "r25", ["t9"]>, DwarfRegNum<[25]>;
-  def R26 : Chiara64Reg<26, "r26", ["r26"]>, DwarfRegNum<[26]>;
-  def R27 : Chiara64Reg<27, "r27", ["r27"]>, DwarfRegNum<[27]>;
-  def R28 : Chiara64Reg<28, "r28", ["rgb"]>, DwarfRegNum<[28]>;
-  def R29 : Chiara64Reg<29, "r29", ["rtb"]>, DwarfRegNum<[29]>;
-  def R30 : Chiara64Reg<30, "r30", ["svbr"]>, DwarfRegNum<[30]>;
-  def R31 : Chiara64Reg<31, "r31", ["tls"]>, DwarfRegNum<[31]>;
+  def GPR0 : Chiara64Reg<0, "GPR0", ["GPR0"]>, DwarfRegNum<[0]>;
+  def GPR1 : Chiara64Reg<1, "GPR1", ["GPR1"]>, DwarfRegNum<[1]>;
+  def GPR2 : Chiara64Reg<2, "GPR2", ["GPR2"]>, DwarfRegNum<[2]>;
+  def GPR3 : Chiara64Reg<3, "GPR3", ["GPR3"]>, DwarfRegNum<[3]>;
+  def GPR4 : Chiara64Reg<4, "GPR4", ["GPR4"]>, DwarfRegNum<[4]>;
+  def GPR5 : Chiara64Reg<5, "GPR5", ["GPR5"]>, DwarfRegNum<[5]>;
+  def GPR6 : Chiara64Reg<6, "GPR6", ["GPR6"]>, DwarfRegNum<[6]>;
+  def GPR7 : Chiara64Reg<7, "GPR7", ["GPR7"]>, DwarfRegNum<[7]>;
+  def GPR8 : Chiara64Reg<8, "GPR8", ["GPR8"]>, DwarfRegNum<[8]>;
+  def GPR9 : Chiara64Reg<9, "GPR9", ["GPR9"]>, DwarfRegNum<[9]>;
+  def GPR10 : Chiara64Reg<10, "GPR10", ["GPR10"]>, DwarfRegNum<[10]>;
+  def GPR11 : Chiara64Reg<11, "GPR11", ["GPR11"]>, DwarfRegNum<[11]>;
+  def GPR12 : Chiara64Reg<12, "GPR12", ["GPR12"]>, DwarfRegNum<[12]>;
+  def GPR13 : Chiara64Reg<13, "GPR13", ["GPR13"]>, DwarfRegNum<[13]>;
+  def GPR14 : Chiara64Reg<14, "GPR14", ["GPR14"]>, DwarfRegNum<[14]>;
+  def GPR15 : Chiara64Reg<15, "GPR15", ["GPR15"]>, DwarfRegNum<[15]>;
+  def GPR16 : Chiara64Reg<16, "GPR16", ["GPR16"]>, DwarfRegNum<[16]>;
+  def GPR17 : Chiara64Reg<17, "GPR17", ["GPR17"]>, DwarfRegNum<[17]>;
+  def GPR18 : Chiara64Reg<18, "GPR18", ["GPR18"]>, DwarfRegNum<[18]>;
+  def GPR19 : Chiara64Reg<19, "GPR19", ["GPR19"]>, DwarfRegNum<[19]>;
+  def GPR20 : Chiara64Reg<20, "GPR20", ["GPR20"]>, DwarfRegNum<[20]>;
+  def GPR21 : Chiara64Reg<21, "GPR21", ["GPR21"]>, DwarfRegNum<[21]>;
+  def GPR22 : Chiara64Reg<22, "GPR22", ["GPR22"]>, DwarfRegNum<[22]>;
+  def GPR23 : Chiara64Reg<23, "GPR23", ["GPR23"]>, DwarfRegNum<[23]>;
+  def GPR24 : Chiara64Reg<24, "GPR24", ["GPR24"]>, DwarfRegNum<[24]>;
+  def GPR25 : Chiara64Reg<25, "GPR25", ["GPR25"]>, DwarfRegNum<[25]>;
+  def GPR26 : Chiara64Reg<26, "GPR26", ["GPR26"]>, DwarfRegNum<[26]>;
+  def GPR27 : Chiara64Reg<27, "GPR27", ["GPR27"]>, DwarfRegNum<[27]>;
+  def GPR28 : Chiara64Reg<28, "GPR28", ["GPR28"]>, DwarfRegNum<[28]>;
+  def GPR29 : Chiara64Reg<29, "GPR29", ["GPR29"]>, DwarfRegNum<[29]>;
+  def GPR30 : Chiara64Reg<30, "GPR30", ["GPR30"]>, DwarfRegNum<[30]>;
+  def GPR31 : Chiara64Reg<31, "GPR31", ["GPR31"]>, DwarfRegNum<[31]>;
   def C : Chiara64Reg<32, "cr0", ["psr"]>;
 
 }
 
 def GPRTuple : RegisterTuples<
-          [sub32_0, sub32_32],
-          [(add (sequence "R%u", 0, 30)), (add (sequence "R%u", 1, 31))],
-          [ "r0",  "r1",  "r2",  "r3",  "r4",  "r5",  "r6",  "r7",
+          [sub64_0, sub64_64],
+          [(add (sequence "GPR%u", 0, 30)), (add (sequence "GPR%u", 1, 31))],
+          [ "gpr0",  "r1",  "r2",  "r3",  "r4",  "r5",  "r6",  "r7",
             "r8",  "r9",  "r10", "r11", "r12", "r13", "r14", "r15",
             "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23",
             "r24", "r25", "r26", "r27", "r28", "r29", "r30"
@@ -146,10 +146,10 @@ let RegAltNameIndices = [ABIRegAltName] in {
 // The order of registers represents the preferred allocation sequence.
 // Registers are listed in the order caller-save, callee-save, specials.
 def GPR : RegisterClass<"Chiara64", [i64], 64,
-                        (add (sequence "R%u", 0, 3), (sequence "R%u", 12, 13),
-                             (sequence "R%u", 18, 25), R15, (sequence "R%u", 4, 11),
-                             (sequence "R%u", 16, 17), (sequence "R%u", 26, 27), R28,
-                             (sequence "R%u", 29, 30), R14, R31)> {
+                        (add (sequence "GPR%u", 0, 3), (sequence "GPR%u", 12, 13),
+                             (sequence "GPR%u", 18, 25), GPR15, (sequence "GPR%u", 4, 11),
+                             (sequence "GPR%u", 16, 17), (sequence "GPR%u", 26, 27), GPR28,
+                             (sequence "GPR%u", 29, 30), GPR14, GPR31)> {
   let Size = 64;
 }
 

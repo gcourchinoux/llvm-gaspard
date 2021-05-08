@@ -34,7 +34,7 @@ static MCAsmInfo *createChiara64MCAsmInfo(const MCRegisterInfo &MRI,
   MCAsmInfo *MAI = new Chiara64MCAsmInfo(TT);
 
   // Initial state of the frame pointer is SP.
-  unsigned Reg = MRI.getDwarfRegNum(Chiara64::R14, true);
+  unsigned Reg = MRI.getDwarfRegNum(Chiara64::GPR0, true);
   MCCFIInstruction Inst = MCCFIInstruction::cfiDefCfa(nullptr, Reg, 0);
   MAI->addInitialFrameState(Inst);
   return MAI;
@@ -48,7 +48,7 @@ static MCInstrInfo *createChiara64MCInstrInfo() {
 
 static MCRegisterInfo *createChiara64MCRegisterInfo(const Triple &TT) {
   MCRegisterInfo *Info = new MCRegisterInfo();
-  InitChiara64MCRegisterInfo(Info, Chiara64::R15);
+  InitChiara64MCRegisterInfo(Info, Chiara64::GPR1);
   return Info;
 }
 
