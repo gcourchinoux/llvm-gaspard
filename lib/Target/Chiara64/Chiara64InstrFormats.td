@@ -51,6 +51,12 @@ class Chiara6424Inst<AddrMode am, bits<8> opcode, dag outs, dag ins, string asms
   field bits<24> Inst;
   let Inst{0 - 7} = opcode;
 }
+class Chiara64Inst_IMMEDIATE<AddrMode am, bits<8> opcode, dag outs, dag ins, string asmstr,
+                 list<dag> pattern>
+    : Chiara64Inst<am, 3, outs, ins, asmstr, pattern> {
+  field bits<88> Inst;
+  let Inst{0 - 7} = opcode;
+}
 
 // Chiara64 32-bit instruction
 // Format< OP[6] | Offset[26] >
@@ -451,6 +457,17 @@ class NORMAL<bits<8> opcode,  dag outs, dag ins, string op,
   bits<8> GPR1;
   let Inst{8 - 15} = GPR;
   let Inst{16 - 23} = GPR1;
+  
+}
+class NORMAL_IMMEDIATE<bits<8> opcode,  dag outs, dag ins, string op,
+            list<dag> pattern>
+    : Chiara64Inst_IMMEDIATE<AddrModeNone, opcode, outs, ins, !strconcat(op, "\t$GPR, $IMMEDIATE"),
+                 pattern> {
+  bits<8> GPR;
+  bits<64> IMMEDIATE;
+  let Inst{8 - 15} = GPR;
+  let Inst{16 - 23} = 0b01000010; // MAGIC NUMBER 66 
+  let Inst{24 - 87} = IMMEDIATE;
   
 }
 
