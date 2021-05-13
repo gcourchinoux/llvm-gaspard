@@ -35,15 +35,17 @@ class UnOpFrag<dag res> : PatFrag<(ops node:$Src), res>;
   def imm64 : imm<64>;
 
   
-def ADD :  NORMAL< 0b00101110, (outs GPR:$ra), (ins GPR:$rx),
-  "add", [(set GPR:$ra, (not GPR:$rx))]>;
-def SUB :  NORMAL< 0b00000101, (outs GPR:$ra), (ins GPR:$rx),
-  "sub", [(set GPR:$ra, (not GPR:$rx))]>;
+def ADD :  NORMAL< 0b00101110, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "add", [(set GPR:$rd, (add GPR:$rx,GPR:$ra))]>;
+def SUB :  NORMAL< 0b00101110, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "sub", [(set GPR:$rd, (sub GPR:$rx,GPR:$ra))]>;
+
 // deplacement d'un registre 
 def LDrr :  NORMAL< 0b00101100, (outs GPR:$ra), (ins GPR:$rx),
-  "disp", [(set GPR:$ra, (not GPR:$rx))]>;
+  "disp", [(set GPR:$ra, (load GPR:$rx))]>;
+
 
 // deplacement d'une valeur immediate dans un rezgistre 
 
 def LDri :  NORMAL_IMMEDIATE< 0b00101100, (outs GPR:$ra), (ins imm64:$rx),
-  "disp", [(set GPR:$ra, (not imm64:$rx))]>;
+  "disp", [(set GPR:$ra, (load imm64:$rx))]>;

@@ -36,7 +36,8 @@ void Chiara64MCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
                                           const MCSubtargetInfo &STI) const {
   const MCInstrDesc &Desc = MII.get(MI.getOpcode());
   unsigned Size = Desc.getSize();
-  uint32_t Bin = getBinaryCodeForInstr(MI, Fixups, STI);
+  
+  uint32_t Bin = getBinaryCodeForInstr(MI, Fixups ,STI);
 
   uint16_t LO16 = static_cast<uint16_t>(Bin);
   uint16_t HI16 = static_cast<uint16_t>(Bin >> 16);
