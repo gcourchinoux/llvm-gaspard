@@ -110,7 +110,7 @@ def LDrr :  NORMAL< 0b00101100, (outs GPR:$ra), (ins GPR:$rx),
 // deplacement d'une valeur immediate dans un rezgistre 
 
 def LDri :  NORMAL_IMMEDIATE< 0b00101100, (outs GPR:$ra), (ins MEMri:$rx),
-  "disp", [(set i64:$ra, (load ADDRri:$rx))]>;
+  "disp", [(set i64:$ra, (load ADDRrr:$rx))]>;
 
 
 //dispa déplacement d'un immédiat dans une adresse 
