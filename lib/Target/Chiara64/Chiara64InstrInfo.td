@@ -47,7 +47,7 @@ def MEMri : Operand<iPTR> {
 class TriOpFrag<dag res> : PatFrag<(ops node: $LHS, node:$MHS, node:$RHS), res>;
 class BinOpFrag<dag res> : PatFrag<(ops node:$LHS, node:$RHS), res>;
 class UnOpFrag<dag res> : PatFrag<(ops node:$Src), res>;
-  def ADDRrr : ComplexPattern<i32, 2, "SelectADDRrr", [], []>;
+  def ADDRrr : ComplexPattern<i64, 2, "SelectADDRrr", [], []>;
   
   def imm64 : imm<64>;
 
@@ -110,16 +110,19 @@ def LDrr :  NORMAL< 0b00101100, (outs GPR:$ra), (ins GPR:$rx),
 // deplacement d'une valeur immediate dans un rezgistre 
 
 def LDri :  NORMAL_IMMEDIATE< 0b00101100, (outs GPR:$ra), (ins MEMri:$rx),
-  "disp", [(set i64:$ra, (load ADDRrr:$rx))]>;
+  "disp", [(set i64:$ra, (load ADDRri:$rx))]>;
 
 
 //dispa déplacement d'un immédiat dans une adresse 
 
 // on déaplce un immédiatetés dans une adresse 
 def immediat_dans_adresse :  NORMAL_IMMEDIATE< 0b00101100, (outs imm64:$ra), (ins MEMri:$rx),
-  "dispa", [(set i64:$ra, (load ADDRrr:$rx))]>; // déplacement d'un immédiat dans une adresse 
+  "dispa", [(set i64:$ra, (load ADDRri:$rx))]>; // déplacement d'un immédiat dans une adresse 
 
 
 // déplacement d'une adresse dans un reg 
 def adresse_to_reg :  NORMAL< 0b00011101, (outs GPR:$rd), (ins GPR:$rx, MEMri:$ra),
-  "dispa", [(set GPR:$rd, (store GPR:$rx, ADDRrr:$ra))]>;
+  "dispa", [(set GPR:$rd, (store GPR:$rx, ADDRri:$ra))]>;
+
+
+// jump politique
