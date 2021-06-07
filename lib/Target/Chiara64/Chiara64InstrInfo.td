@@ -46,11 +46,51 @@ class UnOpFrag<dag res> : PatFrag<(ops node:$Src), res>;
   
 def ADD :  NORMAL< 0b00101110, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
   "add", [(set GPR:$rd, (add GPR:$rx,GPR:$ra))]>;
-  
+
+def ADDC :  NORMAL< 0b00011010, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "addc", [(set GPR:$rd, (addc GPR:$rx,GPR:$ra))]>;  
+
 def SUB :  NORMAL< 0b00101110, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
   "sub", [(set GPR:$rd, (sub GPR:$rx,GPR:$ra))]>;
 
+def SUBC :  NORMAL< 0b00011011, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "subc", [(set GPR:$rd, (subc GPR:$rx,GPR:$ra))]>;
+
+  
+def OR :  NORMAL< 0b00001010, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "Or", [(set GPR:$rd, (or GPR:$rx,GPR:$ra))]>;
+
+def XOR :  NORMAL< 0b00001000, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "xor", [(set GPR:$rd, (xor GPR:$rx,GPR:$ra))]>;
+def AND :  NORMAL< 0b00001001, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "and", [(set GPR:$rd, (and GPR:$rx,GPR:$ra))]>;
+
+def SHFL :  NORMAL< 0b00001100, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "shfl", [(set GPR:$rd, (sra GPR:$rx,GPR:$ra))]>;
+
+// shift right
+
+def SHFR :  NORMAL< 0b00001101, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "shfr", [(set GPR:$rd, (srl GPR:$rx,GPR:$ra))]>;
+
+
+
+// incrédibilités decre,mult etc etc 
+
+def MULT :  NORMAL< 0b00000111, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "mult", [(set GPR:$rd, (mul GPR:$rx,GPR:$ra))]>;
+def DIV :  NORMAL< 0b00011100, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "div", [(set GPR:$rd, (udiv GPR:$rx,GPR:$ra))]>;
+def DIVS :  NORMAL< 0b00011101, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
+  "divs", [(set GPR:$rd, (sdiv GPR:$rx,GPR:$ra))]>;
+
+
+
+
+
+
 // deplacement d'un registre 
+
 def LDrr :  NORMAL< 0b00101100, (outs GPR:$ra), (ins GPR:$rx),
   "disp", [(set GPR:$ra, (load GPR:$rx))]>;
 
