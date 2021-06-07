@@ -139,7 +139,7 @@ def SparcMEMriAsmOperand : AsmOperandClass {
 def MEMrr : Operand<iPTR> {
   let PrintMethod = "printMemOperand";
   let MIOperandInfo = (ops ptr_rc, ptr_rc);
-  let ParserMatchClass = SparcMEMrrAsmOperand;
+  let ParserMatchClass = parseMEMOperand;
 }
 def MEMri : Operand<iPTR> {
   let PrintMethod = "printMemOperand";
