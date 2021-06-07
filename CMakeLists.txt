@@ -287,9 +287,9 @@ set(LLVM_CMAKE_PATH ${LLVM_MAIN_SRC_DIR}/cmake/modules)
 set(LLVM_EXAMPLES_BINARY_DIR ${LLVM_BINARY_DIR}/examples)
 set(LLVM_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 
-# List of all targets to be built by default: Chiara64
+# List of all targets to be built by default:
 set(LLVM_ALL_TARGETS
-  Cpu0
+  Chiara64
 )
 
 # List of targets with JIT support:

@@ -44,7 +44,7 @@ public:
                              const MCSubtargetInfo &STI) const;
 
   template <int shift = 0>
-  unsigned getImmOpValue(const MCInst &MI, unsigned Idx, 
+  unsigned getImmOpValue(const MCInst &MI, unsigned Idx,
                          SmallVectorImpl<MCFixup> &Fixups,
                          const MCSubtargetInfo &STI) const {
     const MCOperand &MO = MI.getOperand(Idx);

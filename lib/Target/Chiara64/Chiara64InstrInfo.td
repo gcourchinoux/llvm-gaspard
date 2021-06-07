@@ -27,16 +27,26 @@ class imm<int num, int shift = 0> : Operand<i64>,
   let EncoderMethod = "getImmOpValue<"#shift#">";
 }
 
+def uimm64      : Operand<i64> {
+  let PrintMethod = "printUnsignedImm";
+}
+
+def MEMrr : Operand<i32> {
+  let PrintMethod = "printMemOperand";
+  let MIOperandInfo = (ops GPR, GPR);
+}
+
 class TriOpFrag<dag res> : PatFrag<(ops node: $LHS, node:$MHS, node:$RHS), res>;
 class BinOpFrag<dag res> : PatFrag<(ops node:$LHS, node:$RHS), res>;
 class UnOpFrag<dag res> : PatFrag<(ops node:$Src), res>;
-  
+  def ADDRrr : ComplexPattern<i32, 2, "SelectADDRrr", [], []>;
   
   def imm64 : imm<64>;
 
   
 def ADD :  NORMAL< 0b00101110, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
   "add", [(set GPR:$rd, (add GPR:$rx,GPR:$ra))]>;
+  
 def SUB :  NORMAL< 0b00101110, (outs GPR:$rd), (ins GPR:$rx,GPR:$ra),
   "sub", [(set GPR:$rd, (sub GPR:$rx,GPR:$ra))]>;
 
@@ -47,5 +57,5 @@ def LDrr :  NORMAL< 0b00101100, (outs GPR:$ra), (ins GPR:$rx),
 
 // deplacement d'une valeur immediate dans un rezgistre 
 
-def LDri :  NORMAL_IMMEDIATE< 0b00101100, (outs GPR:$ra), (ins imm64:$rx),
-  "disp", [(set GPR:$ra, (load imm64:$rx))]>;
+def LDri :  NORMAL_IMMEDIATE< 0b00101100, (outs GPR:$ra), (ins MEMrr:$rx),
+  "dispa", [(set i64:$ra, (load ADDRrr:$rx))]>;

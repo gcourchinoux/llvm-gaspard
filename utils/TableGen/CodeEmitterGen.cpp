@@ -420,7 +420,7 @@ void CodeEmitterGen::run(raw_ostream &o) {
     BitsInit *BI = R->getValueAsBitsInit("Inst");
     BitWidth = std::max(BitWidth, BI->getNumBits());
   }
-  UseAPInt = BitWidth > 64;
+  UseAPInt = BitWidth > 255;
   
   // Emit function declaration
   if (UseAPInt) {
