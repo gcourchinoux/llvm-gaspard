@@ -109,17 +109,17 @@ def LDrr :  NORMAL< 0b00101100, (outs GPR:$ra), (ins GPR:$rx),
 
 // deplacement d'une valeur immediate dans un rezgistre 
 
-def LDri :  NORMAL_IMMEDIATE< 0b00101100, (outs GPR:$ra), (ins MEMrr:$rx),
+def LDri :  NORMAL_IMMEDIATE< 0b00101100, (outs GPR:$ra), (ins MEMri:$rx),
   "disp", [(set i64:$ra, (load ADDRrr:$rx))]>;
 
 
 //dispa déplacement d'un immédiat dans une adresse 
 
 // on déaplce un immédiatetés dans une adresse 
-def immediat_dans_adresse :  NORMAL_IMMEDIATE< 0b00101100, (outs imm64:$ra), (ins MEMrr:$rx),
+def immediat_dans_adresse :  NORMAL_IMMEDIATE< 0b00101100, (outs imm64:$ra), (ins MEMri:$rx),
   "dispa", [(set i64:$ra, (load ADDRrr:$rx))]>; // déplacement d'un immédiat dans une adresse 
 
 
 // déplacement d'une adresse dans un reg 
-def adresse_to_reg :  NORMAL< 0b00011101, (outs GPR:$rd), (ins GPR:$rx, MEMrr:$ra),
+def adresse_to_reg :  NORMAL< 0b00011101, (outs GPR:$rd), (ins GPR:$rx, MEMri:$ra),
   "dispa", [(set GPR:$rd, (store GPR:$rx, ADDRrr:$ra))]>;
