@@ -16,5 +16,5 @@ Target &llvm::getTheChiara64Target() {
 }
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeChiara64TargetInfo() {
-  RegisterTarget<Triple::csky> X(getTheChiara64Target(), "csky", "C-SKY", "CSKY");
+  RegisterTarget<Triple::csky> X(getTheChiara64Target(), "chiara64", "C-SKY", "CSKY");
 }
