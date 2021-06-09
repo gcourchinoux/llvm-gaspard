@@ -52,6 +52,11 @@ static MCRegisterInfo *createChiara64MCRegisterInfo(const Triple &TT) {
   return Info;
 }
 
+
+static MCSubtargetInfo *createChiara64MCSubtargetInfo(std::string str) {
+	
+}
+
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeChiara64TargetMC() {
   auto &Chiara64Target = getTheChiara64Target();
   TargetRegistry::RegisterMCAsmBackend(Chiara64Target, createChiara64AsmBackend);
