@@ -116,12 +116,12 @@ def LDri :  NORMAL_IMMEDIATE< 0b00101100, (outs GPR:$ra), (ins MEMri:$rx),
 //dispa déplacement d'un immédiat dans une adresse 
 
 // on déaplce un immédiatetés dans une adresse 
-def immediat_dans_adresse :  NORMAL_IMMEDIATE< 0b00101100, (outs imm64:$ra), (ins MEMri:$rx),
+def immediat_dans_adresse :  NORMAL_IMMEDIATE_NO_GPR < 0b00101100, (outs imm64:$ra), (ins MEMri:$rx),
   "dispa", [(set i64:$ra, (load ADDRri:$rx))]>; // déplacement d'un immédiat dans une adresse 
 
 
 // déplacement d'une adresse dans un reg 
-def adresse_to_reg :  NORMAL< 0b00011101, (outs GPR:$rd), (ins GPR:$rx, MEMri:$ra),
+def adresse_to_reg :  NORMAL_IMMEDIATE < 0b00011101, (outs GPR:$rd), (ins GPR:$rx, MEMri:$ra),
   "dispa", [(set GPR:$rd, (store GPR:$rx, ADDRri:$ra))]>;
 
 

@@ -57,6 +57,12 @@ class Chiara64Inst_IMMEDIATE<AddrMode am, bits<8> opcode, dag outs, dag ins, str
   field bits<88> Inst;
   let Inst{0 - 7} = opcode;
 }
+class Chiara64Inst_IMMEDIATE_ADRESS<AddrMode am, bits<8> opcode, dag outs, dag ins, string asmstr,
+                 list<dag> pattern>
+    : Chiara64Inst<am, 3, outs, ins, asmstr, pattern> {
+  field bits<152> Inst;
+  let Inst{0 - 7} = opcode;
+}
 
 // Chiara64 32-bit instruction
 // Format< OP[6] | Offset[26] >
@@ -470,7 +476,20 @@ class NORMAL_IMMEDIATE<bits<8> opcode,  dag outs, dag ins, string op,
   let Inst{24 - 87} = IMMEDIATE;
   
 }
+class NORMAL_IMMEDIATE_NO_GPR<bits<8> opcode,  dag outs, dag ins, string op,
+            list<dag> pattern>
+    : Chiara64Inst_IMMEDIATE_ADRESS<AddrModeNone, opcode, outs, ins, !strconcat(op, "\t$adress, $IMMEDIATE"),
+                 pattern> {
+  bits<8> GPR;
+  bits<64> IMMEDIATE;
+  bits<64> adress;
 
+  let Inst{8 - 15} = GPR;
+  let Inst{16 - 79} = IMMEDIATE;
+  let Inst{80 - 143} = adress;
+
+  
+}
 // Format< OP[6] | RY[5] | RX[5] | SOP[6] | PCODE[5] | 00000[5] >
 // Instructions:(4) cmpne32, cmphs32, cmplt32, tst32
 class R_YX<bits<6> sop, bits<5> pcode, string op>
