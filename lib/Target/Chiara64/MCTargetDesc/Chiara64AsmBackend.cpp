@@ -65,5 +65,7 @@ MCAsmBackend *llvm::createChiara64AsmBackend(const Target &T,
                                          const MCSubtargetInfo &STI,
                                          const MCRegisterInfo &MRI,
                                          const MCTargetOptions &Options) {
+
+printf("creation de la backend asm \n");
   return new Chiara64AsmBackend(STI, Options);
 }

@@ -11,10 +11,10 @@
 using namespace llvm;
 
 Target &llvm::getTheChiara64Target() {
-  static Target TheCSKYTarget;
-  return TheCSKYTarget;
+  static Target TheCHIARA64Target;
+  return TheCHIARA64Target;
 }
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeChiara64TargetInfo() {
-  RegisterTarget<Triple::csky> X(getTheChiara64Target(), "chiara64", "C-SKY", "CSKY");
+  RegisterTarget<Triple::chiara64> X(getTheChiara64Target(), "chiara64", "Chiara64", "CHIARA64");
 }

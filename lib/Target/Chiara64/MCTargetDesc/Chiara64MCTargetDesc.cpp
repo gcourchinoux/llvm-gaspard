@@ -43,6 +43,7 @@ static MCAsmInfo *createChiara64MCAsmInfo(const MCRegisterInfo &MRI,
 static MCInstrInfo *createChiara64MCInstrInfo() {
   MCInstrInfo *Info = new MCInstrInfo();
   InitChiara64MCInstrInfo(Info);
+ 
   return Info;
 }
 
@@ -51,17 +52,24 @@ static MCRegisterInfo *createChiara64MCRegisterInfo(const Triple &TT) {
   InitChiara64MCRegisterInfo(Info, Chiara64::GPR1);
   return Info;
 }
-
-
-static MCSubtargetInfo *createChiara64MCSubtargetInfo(std::string str) {
-	
+static MCSubtargetInfo* createChiara64MCSubtargetInfo 	( 	const Triple &  	TT,
+		StringRef  	CPU,
+		StringRef  	FS 
+	) 		{
+		
+		
 }
 
+
+
+
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeChiara64TargetMC() {
+	printf("init mc ");
   auto &Chiara64Target = getTheChiara64Target();
   TargetRegistry::RegisterMCAsmBackend(Chiara64Target, createChiara64AsmBackend);
   TargetRegistry::RegisterMCAsmInfo(Chiara64Target, createChiara64MCAsmInfo);
   TargetRegistry::RegisterMCInstrInfo(Chiara64Target, createChiara64MCInstrInfo);
   TargetRegistry::RegisterMCRegInfo(Chiara64Target, createChiara64MCRegisterInfo);
+  TargetRegistry::RegisterMCSubtargetInfo(Chiara64Target, createChiara64MCSubtargetInfo);
   TargetRegistry::RegisterMCCodeEmitter(Chiara64Target, createChiara64MCCodeEmitter);
 }

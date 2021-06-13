@@ -49,7 +49,7 @@ void LLVMTargetMachine::initAsmInfo() {
   // module level assembly etc.
   STI.reset(TheTarget.createMCSubtargetInfo(
       getTargetTriple().str(), getTargetCPU(), getTargetFeatureString()));
-  //~ assert(STI && "Unable to create subtarget info");
+  assert(STI && "Unable to create subtarget info");
 
   MCAsmInfo *TmpAsmInfo = TheTarget.createMCAsmInfo(
       *MRI, getTargetTriple().str(), Options.MCOptions);
