@@ -9,7 +9,7 @@
 // This file implements the Chiara64MCCodeEmitter class.
 //
 //===----------------------------------------------------------------------===//
-
+#include <iostream>
 #include "Chiara64MCCodeEmitter.h"
 #include "MCTargetDesc/Chiara64MCTargetDesc.h"
 #include "llvm/ADT/Statistic.h"
@@ -34,6 +34,7 @@ unsigned Chiara64MCCodeEmitter::getOImmOpValue(const MCInst &MI, unsigned Idx,
 void Chiara64MCCodeEmitter::encodeInstruction(const MCInst &MI, raw_ostream &OS,
                                           SmallVectorImpl<MCFixup> &Fixups,
                                           const MCSubtargetInfo &STI) const {
+                                          std::cout << "encore instruction lol" << '\n';
   const MCInstrDesc &Desc = MII.get(MI.getOpcode());
   unsigned Size = Desc.getSize();
   

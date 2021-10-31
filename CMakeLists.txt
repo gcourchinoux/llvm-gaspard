@@ -290,6 +290,9 @@ set(LLVM_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 # List of all targets to be built by default:
 set(LLVM_ALL_TARGETS
   Chiara64
+  CSKY
+  Cpu0
+  
 )
 
 # List of targets with JIT support:

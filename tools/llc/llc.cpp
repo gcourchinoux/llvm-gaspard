@@ -655,7 +655,7 @@ static int compileModule(char **argv, LLVMContext &Context) {
     } else if (Target->addPassesToEmitFile(
                    PM, *OS, DwoOut ? &DwoOut->os() : nullptr,
                    codegen::getFileType(), NoVerify, MMIWP)) {
-      reportError("target does not support generation of this file type");
+      reportError("target does not support generation of this file type gaspard");
     }
 
     const_cast<TargetLoweringObjectFile *>(LLVMTM.getObjFileLowering())
