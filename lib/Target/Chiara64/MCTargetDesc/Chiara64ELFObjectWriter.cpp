@@ -20,7 +20,7 @@ namespace {
 class Chiara64ELFObjectWriter : public MCELFObjectTargetWriter {
 public:
   Chiara64ELFObjectWriter(uint8_t OSABI = 0)
-      : MCELFObjectTargetWriter(false, OSABI, ELF::EM_CSKY, true){};
+      : MCELFObjectTargetWriter(false, OSABI, ELF::EM_CHIARA54, true){};
   ~Chiara64ELFObjectWriter() {}
 
   unsigned getRelocType(MCContext &Ctx, const MCValue &Target,

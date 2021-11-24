@@ -67,6 +67,7 @@ Chiara64MCCodeEmitter::getMachineOpValue(const MCInst &MI, const MCOperand &MO,
 MCCodeEmitter *llvm::createChiara64MCCodeEmitter(const MCInstrInfo &MCII,
                                              const MCRegisterInfo &MRI,
                                              MCContext &Ctx) {
+                                             printf("creation de mcdoeemitter \n");
   return new Chiara64MCCodeEmitter(Ctx, MCII);
 }
 

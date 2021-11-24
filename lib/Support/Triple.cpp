@@ -37,6 +37,7 @@ StringRef Triple::getArchTypeName(ArchType Kind) {
   case bpfeb:          return "bpfeb";
   case bpfel:          return "bpfel";
   case csky:           return "csky";
+  case chiara64:           return "chiara64";
   case hexagon:        return "hexagon";
   case hsail64:        return "hsail64";
   case hsail:          return "hsail";
@@ -155,6 +156,7 @@ StringRef Triple::getArchTypePrefix(ArchType Kind) {
 
   case ve:          return "ve";
   case csky:        return "csky";
+  case chiara64:        return "chiara64";
   }
 }
 
@@ -327,6 +329,7 @@ Triple::ArchType Triple::getArchTypeForLLVMName(StringRef Name) {
     .Case("renderscript64", renderscript64)
     .Case("ve", ve)
     .Case("csky", csky)
+    .Case("chiara64", chiara64)
     .Default(UnknownArch);
 }
 
@@ -459,6 +462,7 @@ static Triple::ArchType parseArch(StringRef ArchName) {
     .Case("wasm32", Triple::wasm32)
     .Case("wasm64", Triple::wasm64)
     .Case("csky", Triple::csky)
+    .Case("chiara64", Triple::chiara64)    
     .Default(Triple::UnknownArch);
 
   // Some architectures require special parsing logic just to compute the
@@ -696,6 +700,7 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::bpfeb:
   case Triple::bpfel:
   case Triple::csky:
+  case Triple::chiara64:
   case Triple::hexagon:
   case Triple::hsail64:
   case Triple::hsail:
@@ -1271,6 +1276,7 @@ static unsigned getArchPointerBitWidth(llvm::Triple::ArchType Arch) {
   case llvm::Triple::arm:
   case llvm::Triple::armeb:
   case llvm::Triple::csky:
+  case llvm::Triple::chiara64:
   case llvm::Triple::hexagon:
   case llvm::Triple::hsail:
   case llvm::Triple::kalimba:
@@ -1355,6 +1361,7 @@ Triple Triple::get32BitArchVariant() const {
   case Triple::arm:
   case Triple::armeb:
   case Triple::csky:
+  case Triple::chiara64:  
   case Triple::hexagon:
   case Triple::hsail:
   case Triple::kalimba:
@@ -1409,6 +1416,7 @@ Triple Triple::get64BitArchVariant() const {
   case Triple::arc:
   case Triple::avr:
   case Triple::csky:
+  case Triple::chiara64:  
   case Triple::hexagon:
   case Triple::kalimba:
   case Triple::lanai:
@@ -1504,7 +1512,7 @@ Triple Triple::getBigEndianArchVariant() const {
   case Triple::xcore:
   case Triple::ve:
   case Triple::csky:
-
+  case Triple::chiara64:
   // ARM is intentionally unsupported here, changing the architecture would
   // drop any arch suffixes.
   case Triple::arm:
@@ -1569,6 +1577,7 @@ bool Triple::isLittleEndian() const {
   case Triple::avr:
   case Triple::bpfel:
   case Triple::csky:
+  case Triple::chiara64:
   case Triple::hexagon:
   case Triple::hsail64:
   case Triple::hsail:

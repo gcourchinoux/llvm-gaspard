@@ -22,4 +22,5 @@ Chiara64MCAsmInfo::Chiara64MCAsmInfo(const Triple &TargetTriple) {
   AlignmentIsInBytes = false;
   SupportsDebugInformation = true;
   CommentString = "#";
+  UseIntegratedAssembler = true;
 }

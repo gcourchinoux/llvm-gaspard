@@ -317,6 +317,7 @@ enum {
   EM_BPF = 247,           // Linux kernel bpf virtual machine
   EM_VE = 251,            // NEC SX-Aurora VE
   EM_CSKY = 252,          // C-SKY 32-bit processor
+  EM_CHIARA54 = 253,          // chiara54
 };
 
 // Object file classes.
@@ -793,7 +794,9 @@ enum {
 enum {
 #include "ELFRelocs/CSKY.def"
 };
-
+enum {
+#include "ELFRelocs/CHIARA54.def"
+};
 #undef ELF_RELOC
 
 // Section header.
