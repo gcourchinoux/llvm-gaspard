@@ -10,7 +10,7 @@ add_public_tablegen_target(Chiara64CommonTableGen)
 
 add_llvm_target(Chiara64CodeGen
   Chiara64TargetMachine.cpp
-
+Chiara64AsmPrinter.cpp
   LINK_COMPONENTS
   Core
   CodeGen
