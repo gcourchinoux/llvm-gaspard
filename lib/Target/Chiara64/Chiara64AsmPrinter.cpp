@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "TargetInfo/Chiara64TargetInfo.h"
-
+#include "llvm/CodeGen/AsmPrinter.h"
 #include "llvm/ADT/SmallString.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/CodeGen/AsmPrinter.h"
@@ -46,9 +46,12 @@ namespace {
   class Chiara64AsmPrinter : public AsmPrinter {
       public :
       explicit Chiara64AsmPrinter(TargetMachine &TM,
-                               std::unique_ptr<MCStreamer> Streamer);
+                               std::unique_ptr<MCStreamer> Streamer)
+                                 : AsmPrinter(TM, std::move(Streamer)) {}
+                             
       bool PrintAsmOperand(const MachineInstr *MI, unsigned OpNo,const char *ExtraCode, raw_ostream &OS);
       void EmitInstruction(const MachineInstr *MI) ;
+
       
   };
 }

@@ -17,7 +17,7 @@ Chiara64AsmPrinter.cpp
   Chiara64Info
   Support
   Target
-
+  AsmPrinter
   ADD_TO_COMPONENT
   Chiara64
   )
