@@ -46,8 +46,7 @@ namespace {
   class Chiara64AsmPrinter : public AsmPrinter {
       public :
       explicit Chiara64AsmPrinter(TargetMachine &TM,
-                               std::unique_ptr<MCStreamer> Streamer)
-          : AsmPrinter(TM, std::move(Streamer)) {}
+                               std::unique_ptr<MCStreamer> Streamer);
       bool PrintAsmOperand(const MachineInstr *MI, unsigned OpNo,const char *ExtraCode, raw_ostream &OS);
       void EmitInstruction(const MachineInstr *MI) ;
       
