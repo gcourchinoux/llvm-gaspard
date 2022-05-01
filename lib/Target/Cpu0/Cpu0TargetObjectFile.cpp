@@ -8,15 +8,18 @@
 //===----------------------------------------------------------------------===//
 
 #include "Cpu0TargetObjectFile.h"
+#if CH >= CH3_1
+
 #include "Cpu0Subtarget.h"
+#include "Cpu0TargetMachine.h"
+#include "llvm/BinaryFormat/ELF.h"
+#include "llvm/IR/DataLayout.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/GlobalVariable.h"
-#include "llvm/IR/DataLayout.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCSectionELF.h"
-#include "llvm/Target/TargetMachine.h"
 #include "llvm/Support/CommandLine.h"
-#include "llvm/Support/ELF.h"
+#include "llvm/Target/TargetMachine.h"
 using namespace llvm;
 
 static cl::opt<unsigned>
@@ -26,19 +29,17 @@ SSThreshold("cpu0-ssection-threshold", cl::Hidden,
 
 void Cpu0TargetObjectFile::Initialize(MCContext &Ctx, const TargetMachine &TM){
   TargetLoweringObjectFileELF::Initialize(Ctx, TM);
+  InitializeELF(TM.Options.UseInitArray);
 
-  SmallDataSection =
-    getContext().getELFSection(".sdata", ELF::SHT_PROGBITS,
-                               ELF::SHF_WRITE |ELF::SHF_ALLOC,
-                               SectionKind::getDataRel());
+  SmallDataSection = getContext().getELFSection(
+      ".sdata", ELF::SHT_PROGBITS, ELF::SHF_WRITE | ELF::SHF_ALLOC);
 
-  SmallBSSSection =
-    getContext().getELFSection(".sbss", ELF::SHT_NOBITS,
-                               ELF::SHF_WRITE |ELF::SHF_ALLOC,
-                               SectionKind::getBSS());
-
+  SmallBSSSection = getContext().getELFSection(".sbss", ELF::SHT_NOBITS,
+                                               ELF::SHF_WRITE | ELF::SHF_ALLOC);
+  this->TM = &static_cast<const Cpu0TargetMachine &>(TM);
 }
 
+#if CH >= CH6_1
 // A address must be loaded from a small section if its size is less than the
 // small section size threshold. Data in this section must be addressed using
 // gp_rel operator.
@@ -46,22 +47,35 @@ static bool IsInSmallSection(uint64_t Size) {
   return Size > 0 && Size <= SSThreshold;
 }
 
-bool Cpu0TargetObjectFile::IsGlobalInSmallSection(const GlobalValue *GV,
-                                                const TargetMachine &TM) const {
-  if (GV->isDeclaration() || GV->hasAvailableExternallyLinkage())
-    return false;
+bool Cpu0TargetObjectFile::IsGlobalInSmallSection(
+    const GlobalObject *GO, const TargetMachine &TM) const {
+  // We first check the case where global is a declaration, because finding
+  // section kind using getKindForGlobal() is only allowed for global
+  // definitions.
+  if (GO->isDeclaration() || GO->hasAvailableExternallyLinkage())
+    return IsGlobalInSmallSectionImpl(GO, TM);
 
-  return IsGlobalInSmallSection(GV, TM, getKindForGlobal(GV, TM));
+  return IsGlobalInSmallSection(GO, TM, getKindForGlobal(GO, TM));
 }
 
 /// IsGlobalInSmallSection - Return true if this global address should be
 /// placed into small data/bss section.
 bool Cpu0TargetObjectFile::
-IsGlobalInSmallSection(const GlobalValue *GV, const TargetMachine &TM,
+IsGlobalInSmallSection(const GlobalObject *GO, const TargetMachine &TM,
                        SectionKind Kind) const {
+  return IsGlobalInSmallSectionImpl(GO, TM) &&
+         (Kind.isData() || Kind.isBSS() || Kind.isCommon() ||
+          Kind.isReadOnly());
+}
 
-  // Only use small section for non linux targets.
-  const Cpu0Subtarget &Subtarget = TM.getSubtarget<Cpu0Subtarget>();
+/// Return true if this global address should be placed into small data/bss
+/// section. This method does all the work, except for checking the section
+/// kind.
+bool Cpu0TargetObjectFile::
+IsGlobalInSmallSectionImpl(const GlobalObject *GV,
+                           const TargetMachine &TM) const {
+  const Cpu0Subtarget &Subtarget =
+      *static_cast<const Cpu0TargetMachine &>(TM).getSubtargetImpl();
 
   // Return if small section is not available.
   if (!Subtarget.useSmallSection())
@@ -72,33 +86,30 @@ IsGlobalInSmallSection(const GlobalValue *GV, const TargetMachine &TM,
   if (!GVA)
     return false;
 
-  // We can only do this for datarel or BSS objects for now.
-  if (!Kind.isBSS() && !Kind.isDataRel())
-    return false;
-
-  // If this is a internal constant string, there is a special
-  // section for it, but not in small data/bss.
-  if (Kind.isMergeable1ByteCString())
-    return false;
-
-  Type *Ty = GV->getType()->getElementType();
-  return IsInSmallSection(TM.getDataLayout()->getTypeAllocSize(Ty));
+  Type *Ty = GV->getValueType();
+  return IsInSmallSection(
+      GV->getParent()->getDataLayout().getTypeAllocSize(Ty));
 }
 
 
-
-const MCSection *Cpu0TargetObjectFile::
-SelectSectionForGlobal(const GlobalValue *GV, SectionKind Kind,
-                       Mangler *Mang, const TargetMachine &TM) const {
+MCSection *
+Cpu0TargetObjectFile::SelectSectionForGlobal(
+    const GlobalObject *GO, SectionKind Kind, const TargetMachine &TM) const {
   // TODO: Could also support "weak" symbols as well with ".gnu.linkonce.s.*"
   // sections?
 
   // Handle Small Section classification here.
-  if (Kind.isBSS() && IsGlobalInSmallSection(GV, TM, Kind))
+  if (Kind.isBSS() && IsGlobalInSmallSection(GO, TM, Kind))
     return SmallBSSSection;
-  if (Kind.isDataNoRel() && IsGlobalInSmallSection(GV, TM, Kind))
+  if (Kind.isData() && IsGlobalInSmallSection(GO, TM, Kind))
+    return SmallDataSection;
+  if (Kind.isReadOnly() && IsGlobalInSmallSection(GO, TM, Kind))
     return SmallDataSection;
 
   // Otherwise, we work the same as ELF.
-  return TargetLoweringObjectFileELF::SelectSectionForGlobal(GV, Kind, Mang,TM);
+  return TargetLoweringObjectFileELF::SelectSectionForGlobal(GO, Kind, TM);
 }
+
+#endif // #if CH >= CH6_1
+
+#endif // #if CH >= CH3_1

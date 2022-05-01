@@ -12,39 +12,43 @@
 //
 //===----------------------------------------------------------------------===//
 
-#define DEBUG_TYPE "emit-gp-restore"
-
 #include "Cpu0.h"
+#if CH >= CH9_3
+#ifdef ENABLE_GPRESTORE
+
 #include "Cpu0TargetMachine.h"
 #include "Cpu0MachineFunction.h"
+#include "llvm/ADT/Statistic.h"
 #include "llvm/CodeGen/MachineFunctionPass.h"
 #include "llvm/CodeGen/MachineInstrBuilder.h"
-#include "llvm/Target/TargetInstrInfo.h"
-#include "llvm/ADT/Statistic.h"
+#include "llvm/CodeGen/TargetInstrInfo.h"
 
 using namespace llvm;
+
+#define DEBUG_TYPE "emit-gp-restore"
 
 namespace {
   struct Inserter : public MachineFunctionPass {
 
     TargetMachine &TM;
-    const TargetInstrInfo *TII;
 
     static char ID;
     Inserter(TargetMachine &tm)
-      : MachineFunctionPass(ID), TM(tm), TII(tm.getInstrInfo()) { }
+      : MachineFunctionPass(ID), TM(tm) { }
 
-    virtual const char *getPassName() const {
+    StringRef getPassName() const override {
       return "Cpu0 Emit GP Restore";
     }
 
-    bool runOnMachineFunction(MachineFunction &F);
+    bool runOnMachineFunction(MachineFunction &F) override;
   };
   char Inserter::ID = 0;
 } // end of anonymous namespace
 
 bool Inserter::runOnMachineFunction(MachineFunction &F) {
   Cpu0FunctionInfo *Cpu0FI = F.getInfo<Cpu0FunctionInfo>();
+  const TargetSubtargetInfo *STI =  TM.getSubtargetImpl(F.getFunction());
+  const TargetInstrInfo *TII = STI->getInstrInfo();
 
   if ((TM.getRelocationModel() != Reloc::PIC_) ||
       (!Cpu0FI->globalBaseRegFixed()))
@@ -58,11 +62,11 @@ bool Inserter::runOnMachineFunction(MachineFunction &F) {
     MachineBasicBlock& MBB = *MFI;
     MachineBasicBlock::iterator I = MFI->begin();
     
-    /// IsLandingPad - Indicate that this basic block is entered via an
+    /// isEHPad - Indicate that this basic block is entered via an
     /// exception handler.
     // If MBB is a landing pad, insert instruction that restores $gp after
     // EH_LABEL.
-    if (MBB.isLandingPad()) {
+    if (MBB.isEHPad()) {
       // Find EH_LABEL first.
       for (; I->getOpcode() != TargetOpcode::EH_LABEL; ++I) ;
 
@@ -81,7 +85,7 @@ bool Inserter::runOnMachineFunction(MachineFunction &F) {
       }
 
       DebugLoc dl = I->getDebugLoc();
-      // emit lw $gp, ($gp save slot on stack) after jalr
+      // emit ld $gp, ($gp save slot on stack) after jalr
       BuildMI(MBB, ++I, dl, TII->get(Cpu0::LD), Cpu0::GP).addFrameIndex(FI)
                                                          .addImm(0);
       Changed = true;
@@ -97,3 +101,6 @@ FunctionPass *llvm::createCpu0EmitGPRestorePass(Cpu0TargetMachine &tm) {
   return new Inserter(tm);
 }
 
+#endif
+
+#endif

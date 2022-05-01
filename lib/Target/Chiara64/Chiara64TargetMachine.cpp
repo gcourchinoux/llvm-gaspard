@@ -54,7 +54,9 @@ namespace {
 class Chiara64PassConfig : public TargetPassConfig {
 public:
   Chiara64PassConfig(Chiara64TargetMachine &TM, PassManagerBase &PM)
-      : TargetPassConfig(TM, PM) {}
+      : TargetPassConfig(TM, PM) {
+      
+      }
 
   Chiara64TargetMachine &getChiara64TargetMachine() const {
     return getTM<Chiara64TargetMachine>();
@@ -64,5 +66,7 @@ public:
 } // namespace
 
 TargetPassConfig *Chiara64TargetMachine::createPassConfig(PassManagerBase &PM) {
+  //  addISelPrepare();
+    
   return new Chiara64PassConfig(*this, PM);
 }

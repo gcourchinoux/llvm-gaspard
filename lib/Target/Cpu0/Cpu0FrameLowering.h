@@ -10,12 +10,14 @@
 //
 //
 //===----------------------------------------------------------------------===//
-#ifndef CPU0_FRAMEINFO_H
-#define CPU0_FRAMEINFO_H
+#ifndef LLVM_LIB_TARGET_CPU0_CPU0FRAMELOWERING_H
+#define LLVM_LIB_TARGET_CPU0_CPU0FRAMELOWERING_H
+
+#include "Cpu0Config.h"
+#if CH >= CH3_1
 
 #include "Cpu0.h"
-#include "Cpu0Subtarget.h"
-#include "llvm/Target/TargetFrameLowering.h"
+#include "llvm/CodeGen/TargetFrameLowering.h"
 
 namespace llvm {
   class Cpu0Subtarget;
@@ -25,28 +27,29 @@ protected:
   const Cpu0Subtarget &STI;
 
 public:
-  explicit Cpu0FrameLowering(const Cpu0Subtarget &sti)
-    : TargetFrameLowering(StackGrowsDown, 8, 0),
+  explicit Cpu0FrameLowering(const Cpu0Subtarget &sti, unsigned Alignment)
+    : TargetFrameLowering(StackGrowsDown, Align(Alignment), 0, Align(Alignment)),
       STI(sti) {
   }
 
-  /// emitProlog/emitEpilog - These methods insert prolog and epilog code into
-  /// the function.
-  void emitPrologue(MachineFunction &MF) const;
-  void emitEpilogue(MachineFunction &MF, MachineBasicBlock &MBB) const;
-  bool hasFP(const MachineFunction &MF) const;
-  void eliminateCallFramePseudoInstr(MachineFunction &MF,
-                                     MachineBasicBlock &MBB,
-                                     MachineBasicBlock::iterator I) const;
-  bool spillCalleeSavedRegisters(MachineBasicBlock &MBB,
-                                 MachineBasicBlock::iterator MI,
-                                 const std::vector<CalleeSavedInfo> &CSI,
-                                 const TargetRegisterInfo *TRI) const;
-  void processFunctionBeforeCalleeSavedScan(MachineFunction &MF,
-                                            RegScavenger *RS) const;
+  static const Cpu0FrameLowering *create(const Cpu0Subtarget &ST);
+
+  bool hasFP(const MachineFunction &MF) const override;
+
+#if CH >= CH9_2
+  MachineBasicBlock::iterator
+  eliminateCallFramePseudoInstr(MachineFunction &MF,
+                                  MachineBasicBlock &MBB,
+                                  MachineBasicBlock::iterator I) const override;
+#endif
 };
 
+/// Create Cpu0FrameLowering objects.
+const Cpu0FrameLowering *createCpu0SEFrameLowering(const Cpu0Subtarget &ST);
+
 } // End llvm namespace
+
+#endif // #if CH >= CH3_1
 
 #endif
 

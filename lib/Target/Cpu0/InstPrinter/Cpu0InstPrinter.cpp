@@ -11,8 +11,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#define DEBUG_TYPE "asm-printer"
 #include "Cpu0InstPrinter.h"
+
+#if CH >= CH5_1 //1
+#include "MCTargetDesc/Cpu0MCExpr.h"
+#endif
+#if CH >= CH3_2
+#include "Cpu0InstrInfo.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/MC/MCExpr.h"
 #include "llvm/MC/MCInst.h"
@@ -22,64 +27,28 @@
 #include "llvm/Support/raw_ostream.h"
 using namespace llvm;
 
+#define DEBUG_TYPE "asm-printer"
+
+#define PRINT_ALIAS_INSTR
 #include "Cpu0GenAsmWriter.inc"
 
 void Cpu0InstPrinter::printRegName(raw_ostream &OS, unsigned RegNo) const {
-//- getRegisterName(RegNo) defined in Cpu0GenAsmWriter.inc which came from 
-//   Cpu0.td indicate.
+//- getRegisterName(RegNo) defined in Cpu0GenAsmWriter.inc which indicate in 
+//   Cpu0.td.
   OS << '$' << StringRef(getRegisterName(RegNo)).lower();
 }
 
-void Cpu0InstPrinter::printInst(const MCInst *MI, raw_ostream &O,
-                                StringRef Annot) {
-//- printInstruction(MI, O) defined in Cpu0GenAsmWriter.inc which came from 
-//   Cpu0.td indicate.
-  printInstruction(MI, O);
+//@1 {
+void Cpu0InstPrinter::printInst(const MCInst *MI, uint64_t Address,
+                                StringRef Annot, const MCSubtargetInfo &STI,
+                                raw_ostream &O) {
+  // Try to print any aliases first.
+  if (!printAliasInstr(MI, Address, O))
+//@1 }
+    //- printInstruction(MI, O) defined in Cpu0GenAsmWriter.inc which came from 
+    //   Cpu0.td indicate.
+    printInstruction(MI, Address, O);
   printAnnotation(O, Annot);
-}
-
-static void printExpr(const MCExpr *Expr, raw_ostream &OS) {
-  int Offset = 0;
-  const MCSymbolRefExpr *SRE;
-
-  if (const MCBinaryExpr *BE = dyn_cast<MCBinaryExpr>(Expr)) {
-    SRE = dyn_cast<MCSymbolRefExpr>(BE->getLHS());
-    const MCConstantExpr *CE = dyn_cast<MCConstantExpr>(BE->getRHS());
-    assert(SRE && CE && "Binary expression must be sym+const.");
-    Offset = CE->getValue();
-  }
-  else if (!(SRE = dyn_cast<MCSymbolRefExpr>(Expr)))
-    assert(false && "Unexpected MCExpr type.");
-
-  MCSymbolRefExpr::VariantKind Kind = SRE->getKind();
-
-  switch (Kind) {
-  default:                                 llvm_unreachable("Invalid kind!");
-  case MCSymbolRefExpr::VK_None:           break;
-// Cpu0_GPREL is for llc -march=cpu0 -relocation-model=static
-  case MCSymbolRefExpr::VK_Cpu0_GPREL:     OS << "%gp_rel("; break;
-  case MCSymbolRefExpr::VK_Cpu0_GOT_CALL:  OS << "%call24("; break;
-  case MCSymbolRefExpr::VK_Cpu0_GOT16:     OS << "%got(";    break;
-  case MCSymbolRefExpr::VK_Cpu0_GOT:       OS << "%got(";    break;
-  case MCSymbolRefExpr::VK_Cpu0_ABS_HI:    OS << "%hi(";     break;
-  case MCSymbolRefExpr::VK_Cpu0_ABS_LO:    OS << "%lo(";     break;
-  case MCSymbolRefExpr::VK_Cpu0_GOT_HI16:  OS << "%got_hi("; break;
-  case MCSymbolRefExpr::VK_Cpu0_GOT_LO16:  OS << "%got_lo("; break;
-  }
-
-  OS << SRE->getSymbol();
-
-  if (Offset) {
-    if (Offset > 0)
-      OS << '+';
-    OS << Offset;
-  }
-
-  if ((Kind == MCSymbolRefExpr::VK_Cpu0_GPOFF_HI) ||
-      (Kind == MCSymbolRefExpr::VK_Cpu0_GPOFF_LO))
-    OS << ")))";
-  else if (Kind != MCSymbolRefExpr::VK_None)
-    OS << ')';
 }
 
 void Cpu0InstPrinter::printOperand(const MCInst *MI, unsigned OpNo,
@@ -96,7 +65,7 @@ void Cpu0InstPrinter::printOperand(const MCInst *MI, unsigned OpNo,
   }
 
   assert(Op.isExpr() && "unknown operand kind in printOperand");
-  printExpr(Op.getExpr(), O);
+  Op.getExpr()->print(O, &MAI, true);
 }
 
 void Cpu0InstPrinter::printUnsignedImm(const MCInst *MI, int opNum,
@@ -112,13 +81,16 @@ void Cpu0InstPrinter::
 printMemOperand(const MCInst *MI, int opNum, raw_ostream &O) {
   // Load/Store memory operands -- imm($reg)
   // If PIC target the target is loaded as the
-  // pattern ld $t9,%call24($gp)
+  // pattern ld $t9,%call16($gp)
   printOperand(MI, opNum+1, O);
   O << "(";
   printOperand(MI, opNum, O);
   O << ")";
 }
 
+//#if CH >= CH7_1
+// The DAG data node, mem_ea of Cpu0InstrInfo.td, cannot be disabled by
+// ch7_1, only opcode node can be disabled.
 void Cpu0InstPrinter::
 printMemOperandEA(const MCInst *MI, int opNum, raw_ostream &O) {
   // when using stack locations for not load/store instructions
@@ -128,3 +100,6 @@ printMemOperandEA(const MCInst *MI, int opNum, raw_ostream &O) {
   printOperand(MI, opNum+1, O);
   return;
 }
+//#endif
+
+#endif // #if CH >= CH3_2

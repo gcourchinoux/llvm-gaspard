@@ -12,9 +12,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef TARGET_CPU0_H
-#define TARGET_CPU0_H
+#ifndef LLVM_LIB_TARGET_CPU0_CPU0_H
+#define LLVM_LIB_TARGET_CPU0_CPU0_H
 
+#include "Cpu0Config.h"
 #include "MCTargetDesc/Cpu0MCTargetDesc.h"
 #include "llvm/Target/TargetMachine.h"
 
@@ -22,10 +23,20 @@ namespace llvm {
   class Cpu0TargetMachine;
   class FunctionPass;
 
-  FunctionPass *createCpu0ReplaceSelectPass(Cpu0TargetMachine &TM);
-  FunctionPass *createCpu0ISelDag(Cpu0TargetMachine &TM);
+#if CH >= CH9_3
+#ifdef ENABLE_GPRESTORE
   FunctionPass *createCpu0EmitGPRestorePass(Cpu0TargetMachine &TM);
+#endif
+#endif //#if CH >= CH9_3
+#if CH >= CH8_2 //1
+  FunctionPass *createCpu0DelaySlotFillerPass(Cpu0TargetMachine &TM);
+#endif
+#if CH >= CH8_2 //2
   FunctionPass *createCpu0DelJmpPass(Cpu0TargetMachine &TM);
+#endif
+#if CH >= CH8_2 //3
+  FunctionPass *createCpu0LongBranchPass(Cpu0TargetMachine &TM);
+#endif
 
 } // end namespace llvm;
 

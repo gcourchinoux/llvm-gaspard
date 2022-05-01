@@ -12,72 +12,103 @@
 //===----------------------------------------------------------------------===//
 
 #include "Cpu0.h"
-#include "Cpu0Subtarget.h"
+#if CH >= CH10_1
+
 #include "Cpu0RegisterInfo.h"
-#include "llvm/MC/MCDisassembler.h"
+#include "Cpu0Subtarget.h"
+#include "llvm/MC/MCDisassembler/MCDisassembler.h"
 #include "llvm/MC/MCFixedLenDisassembler.h"
-#include "llvm/Support/MemoryObject.h"
-#include "llvm/Support/TargetRegistry.h"
-#include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/MCInst.h"
+#include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/Support/MathExtras.h"
+#include "llvm/Support/TargetRegistry.h"
 
 using namespace llvm;
 
+#define DEBUG_TYPE "cpu0-disassembler"
+
 typedef MCDisassembler::DecodeStatus DecodeStatus;
 
-/// Cpu0Disassembler - a disasembler class for Cpu032.
-class Cpu0Disassembler : public MCDisassembler {
+namespace {
+
+/// Cpu0DisassemblerBase - a disasembler class for Cpu0.
+class Cpu0DisassemblerBase : public MCDisassembler {
 public:
   /// Constructor     - Initializes the disassembler.
   ///
-  Cpu0Disassembler(const MCSubtargetInfo &STI, bool bigEndian) :
-    MCDisassembler(STI), isBigEndian(bigEndian) {
-  }
+  Cpu0DisassemblerBase(const MCSubtargetInfo &STI, MCContext &Ctx,
+                       bool bigEndian) :
+    MCDisassembler(STI, Ctx),
+    IsBigEndian(bigEndian) {}
 
-  ~Cpu0Disassembler() {
+  virtual ~Cpu0DisassemblerBase() {}
+
+protected:
+  bool IsBigEndian;
+};
+
+/// Cpu0Disassembler - a disasembler class for Cpu032.
+class Cpu0Disassembler : public Cpu0DisassemblerBase {
+public:
+  /// Constructor     - Initializes the disassembler.
+  ///
+  Cpu0Disassembler(const MCSubtargetInfo &STI, MCContext &Ctx, bool bigEndian)
+      : Cpu0DisassemblerBase(STI, Ctx, bigEndian) {
   }
 
   /// getInstruction - See MCDisassembler.
-  DecodeStatus getInstruction(MCInst &instr,
-                              uint64_t &size,
-                              const MemoryObject &region,
-                              uint64_t address,
-                              raw_ostream &vStream,
-                              raw_ostream &cStream) const;
-
-private:
-  bool isBigEndian;
+  DecodeStatus getInstruction(MCInst &Instr, uint64_t &Size,
+                              ArrayRef<uint8_t> Bytes, uint64_t Address,
+                              raw_ostream &CStream) const override;
 };
 
-// Decoder tables for Cpu0 register
+} // end anonymous namespace
+
+// Decoder tables for GPR register
 static const unsigned CPURegsTable[] = {
   Cpu0::ZERO, Cpu0::AT, Cpu0::V0, Cpu0::V1,
-  Cpu0::A0, Cpu0::A1, Cpu0::T9, Cpu0::S0, 
-  Cpu0::S1, Cpu0::S2, Cpu0::GP, Cpu0::FP, 
-  Cpu0::SW, Cpu0::SP, Cpu0::LR, Cpu0::PC
+  Cpu0::A0, Cpu0::A1, Cpu0::T9, Cpu0::T0, 
+  Cpu0::T1, Cpu0::S0, Cpu0::S1, Cpu0::GP, 
+  Cpu0::FP, Cpu0::SP, Cpu0::LR, Cpu0::SW
+};
+
+// Decoder tables for co-processor 0 register
+static const unsigned C0RegsTable[] = {
+  Cpu0::PC, Cpu0::EPC
 };
 
 static DecodeStatus DecodeCPURegsRegisterClass(MCInst &Inst,
                                                unsigned RegNo,
                                                uint64_t Address,
                                                const void *Decoder);
-static DecodeStatus DecodeCMPInstruction(MCInst &Inst,
+static DecodeStatus DecodeGPROutRegisterClass(MCInst &Inst,
+                                               unsigned RegNo,
+                                               uint64_t Address,
+                                               const void *Decoder);
+static DecodeStatus DecodeSRRegisterClass(MCInst &Inst,
+                                               unsigned RegNo,
+                                               uint64_t Address,
+                                               const void *Decoder);
+static DecodeStatus DecodeC0RegsRegisterClass(MCInst &Inst,
+                                              unsigned RegNo,
+                                              uint64_t Address,
+                                              const void *Decoder);
+static DecodeStatus DecodeBranch16Target(MCInst &Inst,
                                        unsigned Insn,
                                        uint64_t Address,
                                        const void *Decoder);
-static DecodeStatus DecodeBranchTarget(MCInst &Inst,
+static DecodeStatus DecodeBranch24Target(MCInst &Inst,
                                        unsigned Insn,
                                        uint64_t Address,
                                        const void *Decoder);
-static DecodeStatus DecodeJumpRelativeTarget(MCInst &Inst,
-                                       unsigned Insn,
-                                       uint64_t Address,
-                                       const void *Decoder);
-static DecodeStatus DecodeJumpAbsoluteTarget(MCInst &Inst,
+static DecodeStatus DecodeJumpTarget(MCInst &Inst,
                                      unsigned Insn,
                                      uint64_t Address,
                                      const void *Decoder);
+static DecodeStatus DecodeJumpFR(MCInst &Inst,
+                                 unsigned Insn,
+                                 uint64_t Address,
+                                 const void *Decoder);
 
 static DecodeStatus DecodeMem(MCInst &Inst,
                               unsigned Insn,
@@ -95,14 +126,16 @@ extern Target TheCpu0elTarget, TheCpu0Target, TheCpu064Target,
 
 static MCDisassembler *createCpu0Disassembler(
                        const Target &T,
-                       const MCSubtargetInfo &STI) {
-  return new Cpu0Disassembler(STI,true);
+                       const MCSubtargetInfo &STI,
+                       MCContext &Ctx) {
+  return new Cpu0Disassembler(STI, Ctx, true);
 }
 
 static MCDisassembler *createCpu0elDisassembler(
                        const Target &T,
-                       const MCSubtargetInfo &STI) {
-  return new Cpu0Disassembler(STI,false);
+                       const MCSubtargetInfo &STI,
+                       MCContext &Ctx) {
+  return new Cpu0Disassembler(STI, Ctx, false);
 }
 
 extern "C" void LLVMInitializeCpu0Disassembler() {
@@ -116,31 +149,27 @@ extern "C" void LLVMInitializeCpu0Disassembler() {
 
 #include "Cpu0GenDisassemblerTables.inc"
 
-  /// readInstruction - read four bytes from the MemoryObject
-  /// and return 32 bit word sorted according to the given endianess
-static DecodeStatus readInstruction32(const MemoryObject &region,
-                                      uint64_t address,
-                                      uint64_t &size,
-                                      uint32_t &insn,
-                                      bool isBigEndian) {
-  uint8_t Bytes[4];
-
+/// Read four bytes from the ArrayRef and return 32 bit word sorted
+/// according to the given endianess
+static DecodeStatus readInstruction32(ArrayRef<uint8_t> Bytes, uint64_t Address,
+                                      uint64_t &Size, uint32_t &Insn,
+                                      bool IsBigEndian) {
   // We want to read exactly 4 Bytes of data.
-  if (region.readBytes(address, 4, (uint8_t*)Bytes, NULL) == -1) {
-    size = 0;
+  if (Bytes.size() < 4) {
+    Size = 0;
     return MCDisassembler::Fail;
   }
 
-  if (isBigEndian) {
+  if (IsBigEndian) {
     // Encoded as a big-endian 32-bit word in the stream.
-    insn = (Bytes[3] <<  0) |
+    Insn = (Bytes[3] <<  0) |
            (Bytes[2] <<  8) |
            (Bytes[1] << 16) |
            (Bytes[0] << 24);
   }
   else {
     // Encoded as a small-endian 32-bit word in the stream.
-    insn = (Bytes[0] <<  0) |
+    Insn = (Bytes[0] <<  0) |
            (Bytes[1] <<  8) |
            (Bytes[2] << 16) |
            (Bytes[3] << 24);
@@ -150,21 +179,21 @@ static DecodeStatus readInstruction32(const MemoryObject &region,
 }
 
 DecodeStatus
-Cpu0Disassembler::getInstruction(MCInst &instr,
-                                 uint64_t &Size,
-                                 const MemoryObject &Region,
-                                 uint64_t Address,
-                                 raw_ostream &vStream,
-                                 raw_ostream &cStream) const {
+Cpu0Disassembler::getInstruction(MCInst &Instr, uint64_t &Size,
+                                              ArrayRef<uint8_t> Bytes,
+                                              uint64_t Address,
+                                              raw_ostream &CStream) const {
   uint32_t Insn;
 
-  DecodeStatus Result = readInstruction32(Region, Address, Size,
-                                          Insn, isBigEndian);
+  DecodeStatus Result;
+
+  Result = readInstruction32(Bytes, Address, Size, Insn, IsBigEndian);
+
   if (Result == MCDisassembler::Fail)
     return MCDisassembler::Fail;
 
   // Calling the auto-generated decoder function.
-  Result = decodeInstruction(DecoderTableCpu032, instr, Insn, Address,
+  Result = decodeInstruction(DecoderTableCpu032, Instr, Insn, Address,
                              this, STI);
   if (Result != MCDisassembler::Fail) {
     Size = 4;
@@ -178,63 +207,69 @@ static DecodeStatus DecodeCPURegsRegisterClass(MCInst &Inst,
                                                unsigned RegNo,
                                                uint64_t Address,
                                                const void *Decoder) {
-  if (RegNo > 16)
+  if (RegNo > 15)
     return MCDisassembler::Fail;
 
-  Inst.addOperand(MCOperand::CreateReg(CPURegsTable[RegNo]));
+  Inst.addOperand(MCOperand::createReg(CPURegsTable[RegNo]));
   return MCDisassembler::Success;
 }
 
+static DecodeStatus DecodeGPROutRegisterClass(MCInst &Inst,
+                                               unsigned RegNo,
+                                               uint64_t Address,
+                                               const void *Decoder) {
+  return DecodeCPURegsRegisterClass(Inst, RegNo, Address, Decoder);
+}
+
+static DecodeStatus DecodeSRRegisterClass(MCInst &Inst,
+                                               unsigned RegNo,
+                                               uint64_t Address,
+                                               const void *Decoder) {
+  return DecodeCPURegsRegisterClass(Inst, RegNo, Address, Decoder);
+}
+
+static DecodeStatus DecodeC0RegsRegisterClass(MCInst &Inst,
+                                              unsigned RegNo,
+                                              uint64_t Address,
+                                              const void *Decoder) {
+  if (RegNo > 1)
+    return MCDisassembler::Fail;
+
+  Inst.addOperand(MCOperand::createReg(C0RegsTable[RegNo]));
+  return MCDisassembler::Success;
+}
+
+//@DecodeMem {
 static DecodeStatus DecodeMem(MCInst &Inst,
                               unsigned Insn,
                               uint64_t Address,
                               const void *Decoder) {
+//@DecodeMem body {
   int Offset = SignExtend32<16>(Insn & 0xffff);
   int Reg = (int)fieldFromInstruction(Insn, 20, 4);
   int Base = (int)fieldFromInstruction(Insn, 16, 4);
 
-  Inst.addOperand(MCOperand::CreateReg(CPURegsTable[Reg]));
-  Inst.addOperand(MCOperand::CreateReg(CPURegsTable[Base]));
-  Inst.addOperand(MCOperand::CreateImm(Offset));
+#if CH >= CH12_1 //1
+  if(Inst.getOpcode() == Cpu0::SC){
+    Inst.addOperand(MCOperand::createReg(Reg));
+  }
+#endif
+
+  Inst.addOperand(MCOperand::createReg(CPURegsTable[Reg]));
+  Inst.addOperand(MCOperand::createReg(CPURegsTable[Base]));
+  Inst.addOperand(MCOperand::createImm(Offset));
 
   return MCDisassembler::Success;
 }
 
-/* CMP instruction define $rc and then $ra, $rb; The printOperand() print 
-operand 1 and operand 2 (operand 0 is $rc and operand 1 is $ra), so we Create 
-register $rc first and create $ra next, as follows,
-
-// Cpu0InstrInfo.td
-class CmpInstr<bits<8> op, string instr_asm, 
-                    InstrItinClass itin, RegisterClass RC, RegisterClass RD, bit isComm = 0>:
-  FA<op, (outs RD:$rc), (ins RC:$ra, RC:$rb),
-     !strconcat(instr_asm, "\t$ra, $rb"), [], itin> {
-
-// Cpu0AsmWriter.inc
-void Cpu0InstPrinter::printInstruction(const MCInst *MI, raw_ostream &O) {
-...
-  case 3:
-    // CMP, JEQ, JGE, JGT, JLE, JLT, JNE
-    printOperand(MI, 1, O); 
-    break;
-...
-  case 1:
-    // CMP
-    printOperand(MI, 2, O); 
-    return;
-    break;
-*/
-static DecodeStatus DecodeCMPInstruction(MCInst &Inst,
+static DecodeStatus DecodeBranch16Target(MCInst &Inst,
                                        unsigned Insn,
                                        uint64_t Address,
                                        const void *Decoder) {
-  int Reg_a = (int)fieldFromInstruction(Insn, 20, 4);
-  int Reg_b = (int)fieldFromInstruction(Insn, 16, 4);
-  int Reg_c = (int)fieldFromInstruction(Insn, 12, 4);
-
-  Inst.addOperand(MCOperand::CreateReg(CPURegsTable[Reg_c]));
-  Inst.addOperand(MCOperand::CreateReg(CPURegsTable[Reg_a]));
-  Inst.addOperand(MCOperand::CreateReg(CPURegsTable[Reg_b]));
+  int BranchOffset = fieldFromInstruction(Insn, 0, 16);
+  if (BranchOffset > 0x8fff)
+  	BranchOffset = -1*(0x10000 - BranchOffset);
+  Inst.addOperand(MCOperand::createImm(BranchOffset));
   return MCDisassembler::Success;
 }
 
@@ -257,37 +292,39 @@ void Cpu0InstPrinter::printInstruction(const MCInst *MI, raw_ostream &O) {
     printOperand(MI, 1, O); 
     break;
 */
-static DecodeStatus DecodeBranchTarget(MCInst &Inst,
+static DecodeStatus DecodeBranch24Target(MCInst &Inst,
                                        unsigned Insn,
                                        uint64_t Address,
                                        const void *Decoder) {
   int BranchOffset = fieldFromInstruction(Insn, 0, 24);
   if (BranchOffset > 0x8fffff)
   	BranchOffset = -1*(0x1000000 - BranchOffset);
-  Inst.addOperand(MCOperand::CreateReg(CPURegsTable[0]));
-  Inst.addOperand(MCOperand::CreateImm(BranchOffset));
+  Inst.addOperand(MCOperand::createReg(Cpu0::SW));
+  Inst.addOperand(MCOperand::createImm(BranchOffset));
   return MCDisassembler::Success;
 }
 
-static DecodeStatus DecodeJumpRelativeTarget(MCInst &Inst,
-                                     unsigned Insn,
-                                     uint64_t Address,
-                                     const void *Decoder) {
-
-  int JumpOffset = fieldFromInstruction(Insn, 0, 24);
-  if (JumpOffset > 0x8fffff)
-  	JumpOffset = -1*(0x1000000 - JumpOffset);
-  Inst.addOperand(MCOperand::CreateImm(JumpOffset));
-  return MCDisassembler::Success;
-}
-
-static DecodeStatus DecodeJumpAbsoluteTarget(MCInst &Inst,
+static DecodeStatus DecodeJumpTarget(MCInst &Inst,
                                      unsigned Insn,
                                      uint64_t Address,
                                      const void *Decoder) {
 
   unsigned JumpOffset = fieldFromInstruction(Insn, 0, 24);
-  Inst.addOperand(MCOperand::CreateImm(JumpOffset));
+  Inst.addOperand(MCOperand::createImm(JumpOffset));
+  return MCDisassembler::Success;
+}
+
+static DecodeStatus DecodeJumpFR(MCInst &Inst,
+                                     unsigned Insn,
+                                     uint64_t Address,
+                                     const void *Decoder) {
+  int Reg_a = (int)fieldFromInstruction(Insn, 20, 4);
+  Inst.addOperand(MCOperand::createReg(CPURegsTable[Reg_a]));
+// exapin in http://jonathan2251.github.io/lbd/llvmstructure.html#jr-note
+  if (CPURegsTable[Reg_a] == Cpu0::LR)
+    Inst.setOpcode(Cpu0::RET);
+  else
+    Inst.setOpcode(Cpu0::JR);
   return MCDisassembler::Success;
 }
 
@@ -295,7 +332,10 @@ static DecodeStatus DecodeSimm16(MCInst &Inst,
                                  unsigned Insn,
                                  uint64_t Address,
                                  const void *Decoder) {
-  Inst.addOperand(MCOperand::CreateImm(SignExtend32<16>(Insn)));
+  Inst.addOperand(MCOperand::createImm(SignExtend32<16>(Insn)));
   return MCDisassembler::Success;
 }
 
+#else // #if CH >= CH11_1
+extern "C" void LLVMInitializeCpu0Disassembler() {}
+#endif // #if CH >= CH10_1

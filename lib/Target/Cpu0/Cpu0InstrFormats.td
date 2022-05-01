@@ -37,6 +37,8 @@ def FrmOther  : Format<4>; // Instruction w/ a custom format
 class Cpu0Inst<dag outs, dag ins, string asmstr, list<dag> pattern,
                InstrItinClass itin, Format f>: Instruction
 {
+  // Inst and Size: for tablegen(... -gen-emitter) and 
+  // tablegen(... -gen-disassembler) in CMakeLists.txt
   field bits<32> Inst;
   Format Form = f;
 
@@ -69,13 +71,24 @@ class Cpu0Inst<dag outs, dag ins, string asmstr, list<dag> pattern,
   field bits<32> SoftFail = 0;
 }
 
+//#if CH >= CH3_4
 // Cpu0 Pseudo Instructions Format
 class Cpu0Pseudo<dag outs, dag ins, string asmstr, list<dag> pattern>:
       Cpu0Inst<outs, ins, asmstr, pattern, IIPseudo, Pseudo> {
   let isCodeGenOnly = 1;
   let isPseudo = 1;
 }
+//#endif
 
+//#if CH >= CH9_1
+// Cpu032 Pseudo Instruction Format
+class PseudoSE<dag outs, dag ins, list<dag> pattern,
+               InstrItinClass itin = IIPseudo> :
+  Cpu0Pseudo<outs, ins, "", pattern> {
+}
+//#endif
+
+//#if CH >= CH11_1
 // Pseudo-instructions for alternate assembly syntax (never used by codegen).
 // These are aliases that require C++ handling to convert to the target
 // instruction, while InstAliases can be handled directly by tblgen.
@@ -84,6 +97,7 @@ class Cpu0AsmPseudoInst<dag outs, dag ins, string asmstr>:
   let isPseudo = 1;
   let Pattern = [];
 }
+//#endif
 
 //===----------------------------------------------------------------------===//
 // Format A instruction class in Cpu0 : <|opcode|ra|rb|rc|cx|>
@@ -106,6 +120,7 @@ class FA<bits<8> op, dag outs, dag ins, string asmstr,
   let Inst{11-0}  = shamt;
 }
 
+//@class FL {
 //===----------------------------------------------------------------------===//
 // Format L instruction class in Cpu0 : <|opcode|ra|rb|cx|>
 //===----------------------------------------------------------------------===//
@@ -123,6 +138,7 @@ class FL<bits<8> op, dag outs, dag ins, string asmstr, list<dag> pattern,
   let Inst{19-16} = rb;
   let Inst{15-0}  = imm16;
 }
+//@class FL }
 
 //===----------------------------------------------------------------------===//
 // Format J instruction class in Cpu0 : <|opcode|address|>

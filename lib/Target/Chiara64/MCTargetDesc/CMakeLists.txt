@@ -4,7 +4,7 @@ add_llvm_component_library(LLVMChiara64Desc
   Chiara64MCAsmInfo.cpp
   Chiara64MCTargetDesc.cpp
   Chiara64MCCodeEmitter.cpp
-
+  Chiara64AsmInfo.cpp	
   LINK_COMPONENTS
   MC
   Chiara64Info

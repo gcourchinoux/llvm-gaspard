@@ -8,6 +8,8 @@
 //===----------------------------------------------------------------------===//
 #include "Cpu0AnalyzeImmediate.h"
 #include "Cpu0.h"
+#if CH >= CH3_5
+
 #include "llvm/Support/MathExtras.h"
 
 using namespace llvm;
@@ -40,7 +42,7 @@ void Cpu0AnalyzeImmediate::GetInstSeqLsORi(uint64_t Imm, unsigned RemSize,
 
 void Cpu0AnalyzeImmediate::GetInstSeqLsSHL(uint64_t Imm, unsigned RemSize,
                                            InstSeqLs &SeqLs) {
-  unsigned Shamt = CountTrailingZeros_64(Imm);
+  unsigned Shamt = countTrailingZeros(Imm);
   GetInstSeqLs(Imm >> Shamt, RemSize - Shamt, SeqLs);
   AddInstr(SeqLs, Inst(SHL, Shamt));
 }
@@ -144,3 +146,5 @@ const Cpu0AnalyzeImmediate::InstSeq
 
   return Insts;
 }
+
+#endif

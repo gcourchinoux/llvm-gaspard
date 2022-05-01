@@ -11,70 +11,64 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef CPU0TARGETMACHINE_H
-#define CPU0TARGETMACHINE_H
+#ifndef LLVM_LIB_TARGET_CPU0_CPU0TARGETMACHINE_H
+#define LLVM_LIB_TARGET_CPU0_CPU0TARGETMACHINE_H
 
-#include "Cpu0FrameLowering.h"
-#include "Cpu0InstrInfo.h"
-#include "Cpu0ISelLowering.h"
-#include "Cpu0SelectionDAGInfo.h"
+#include "Cpu0Config.h"
+#if CH >= CH3_1
+
+#include "MCTargetDesc/Cpu0ABIInfo.h"
 #include "Cpu0Subtarget.h"
+#include "llvm/CodeGen/Passes.h"
+#include "llvm/CodeGen/SelectionDAGISel.h"
+#include "llvm/CodeGen/TargetFrameLowering.h"
+#include "llvm/Support/CodeGen.h"
 #include "llvm/Target/TargetMachine.h"
-#include "llvm/IR/DataLayout.h"
-#include "llvm/Target/TargetFrameLowering.h"
 
 namespace llvm {
-  class formatted_raw_ostream;
+class formatted_raw_ostream;
+class Cpu0RegisterInfo;
 
-  class Cpu0TargetMachine : public LLVMTargetMachine {
-    Cpu0Subtarget       Subtarget;
-    const DataLayout    DL; // Calculates type size & alignment
-    Cpu0InstrInfo       InstrInfo;	//- Instructions
-    Cpu0FrameLowering   FrameLowering;	//- Stack(Frame) and Stack direction
-    Cpu0TargetLowering  TLInfo;	//- Stack(Frame) and Stack direction
-    Cpu0SelectionDAGInfo TSInfo;	//- Map .bc DAG to backend DAG
+class Cpu0TargetMachine : public LLVMTargetMachine {
+  bool isLittle;
+  std::unique_ptr<TargetLoweringObjectFile> TLOF;
+  // Selected ABI
+  Cpu0ABIInfo ABI;
+  Cpu0Subtarget DefaultSubtarget;
 
-  public:
-    Cpu0TargetMachine(const Target &T, StringRef TT,
-                      StringRef CPU, StringRef FS, const TargetOptions &Options,
-                      Reloc::Model RM, CodeModel::Model CM,
-                      CodeGenOpt::Level OL,
-                      bool isLittle);
+  mutable StringMap<std::unique_ptr<Cpu0Subtarget>> SubtargetMap;
+public:
+  Cpu0TargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+                    StringRef FS, const TargetOptions &Options,
+                    Optional<Reloc::Model> RM, Optional<CodeModel::Model> CM,
+                    CodeGenOpt::Level OL, bool JIT, bool isLittle);
+  ~Cpu0TargetMachine() override;
 
-    virtual const Cpu0InstrInfo   *getInstrInfo()     const
-    { return &InstrInfo; }
-    virtual const TargetFrameLowering *getFrameLowering()     const
-    { return &FrameLowering; }
-    virtual const Cpu0Subtarget   *getSubtargetImpl() const
-    { return &Subtarget; }
-    virtual const DataLayout *getDataLayout()    const
-    { return &DL;}
+  const Cpu0Subtarget *getSubtargetImpl() const {
+    return &DefaultSubtarget;
+  }
 
-    virtual const Cpu0RegisterInfo *getRegisterInfo()  const {
-      return &InstrInfo.getRegisterInfo();
-    }
+  const Cpu0Subtarget *getSubtargetImpl(const Function &F) const override;
 
-    virtual const Cpu0TargetLowering *getTargetLowering() const {
-      return &TLInfo;
-    }
+  // Pass Pipeline Configuration
+  TargetPassConfig *createPassConfig(PassManagerBase &PM) override;
 
-    virtual const Cpu0SelectionDAGInfo* getSelectionDAGInfo() const {
-      return &TSInfo;
-    }
-
-    // Pass Pipeline Configuration
-    virtual TargetPassConfig *createPassConfig(PassManagerBase &PM);
-  };
+  TargetLoweringObjectFile *getObjFileLowering() const override {
+    return TLOF.get();
+  }
+  bool isLittleEndian() const { return isLittle; }
+  const Cpu0ABIInfo &getABI() const { return ABI; }
+};
 
 /// Cpu0ebTargetMachine - Cpu032 big endian target machine.
 ///
 class Cpu0ebTargetMachine : public Cpu0TargetMachine {
   virtual void anchor();
 public:
-  Cpu0ebTargetMachine(const Target &T, StringRef TT,
-                      StringRef CPU, StringRef FS, const TargetOptions &Options,
-                      Reloc::Model RM, CodeModel::Model CM,
-                      CodeGenOpt::Level OL);
+  Cpu0ebTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+                      StringRef FS, const TargetOptions &Options,
+                      Optional<Reloc::Model> RM, Optional<CodeModel::Model> CM,
+                      CodeGenOpt::Level OL, bool JIT);
 };
 
 /// Cpu0elTargetMachine - Cpu032 little endian target machine.
@@ -82,11 +76,13 @@ public:
 class Cpu0elTargetMachine : public Cpu0TargetMachine {
   virtual void anchor();
 public:
-  Cpu0elTargetMachine(const Target &T, StringRef TT,
-                      StringRef CPU, StringRef FS, const TargetOptions &Options,
-                      Reloc::Model RM, CodeModel::Model CM,
-                      CodeGenOpt::Level OL);
+  Cpu0elTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+                      StringRef FS, const TargetOptions &Options,
+                      Optional<Reloc::Model> RM, Optional<CodeModel::Model> CM,
+                      CodeGenOpt::Level OL, bool JIT);
 };
 } // End llvm namespace
+
+#endif // #if CH >= CH3_1
 
 #endif

@@ -51,8 +51,9 @@ namespace {
                              
       bool PrintAsmOperand(const MachineInstr *MI, unsigned OpNo,const char *ExtraCode, raw_ostream &OS);
       void EmitInstruction(const MachineInstr *MI) ;
-
-      
+      bool runOnMachineFunction(MachineFunction &MF) ;
+      void PrintOperand(const MachineInstr *MI, unsigned OpNo,
+                        raw_ostream &O);
   };
 }
 
@@ -68,7 +69,15 @@ bool Chiara64AsmPrinter::PrintAsmOperand(const MachineInstr *MI, unsigned OpNo,
  }
 
 
-
+bool Chiara64AsmPrinter::runOnMachineFunction(MachineFunction &MF) {
+    
+    
+}
+void Chiara64AsmPrinter::PrintOperand(const MachineInstr *MI, unsigned OpNo,
+                                      raw_ostream &O) {
+    
+    
+}
 // Force static initialization.
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeChiara64AsmPrinter() {
   RegisterAsmPrinter<Chiara64AsmPrinter> X(getTheChiara64Target());

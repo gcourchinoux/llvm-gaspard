@@ -11,18 +11,20 @@
 //
 //===----------------------------------------------------------------------===//
 
-#define DEBUG_TYPE "del-jmp"
-
 #include "Cpu0.h"
+#if CH >= CH8_2
+
 #include "Cpu0TargetMachine.h"
 #include "llvm/CodeGen/MachineFunctionPass.h"
+#include "llvm/CodeGen/TargetInstrInfo.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Target/TargetMachine.h"
-#include "llvm/Target/TargetInstrInfo.h"
 #include "llvm/ADT/SmallSet.h"
 #include "llvm/ADT/Statistic.h"
 
 using namespace llvm;
+
+#define DEBUG_TYPE "del-jmp"
 
 STATISTIC(NumDelJmp, "Number of useless jmp deleted");
 
@@ -34,20 +36,16 @@ static cl::opt<bool> EnableDelJmp(
 
 namespace {
   struct DelJmp : public MachineFunctionPass {
-
-    TargetMachine &TM;
-    const TargetInstrInfo *TII;
-
     static char ID;
     DelJmp(TargetMachine &tm)
-      : MachineFunctionPass(ID), TM(tm), TII(tm.getInstrInfo()) { }
+      : MachineFunctionPass(ID) { }
 
-    virtual const char *getPassName() const {
+    StringRef getPassName() const override {
       return "Cpu0 Del Useless jmp";
     }
 
     bool runOnMachineBasicBlock(MachineBasicBlock &MBB, MachineBasicBlock &MBBN);
-    bool runOnMachineFunction(MachineFunction &F) {
+    bool runOnMachineFunction(MachineFunction &F) override {
       bool Changed = false;
       if (EnableDelJmp) {
         MachineFunction::iterator FJ = F.begin();
@@ -97,3 +95,5 @@ runOnMachineBasicBlock(MachineBasicBlock &MBB, MachineBasicBlock &MBBN) {
 FunctionPass *llvm::createCpu0DelJmpPass(Cpu0TargetMachine &tm) {
   return new DelJmp(tm);
 }
+
+#endif
