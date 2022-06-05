@@ -1,4 +1,4 @@
-//===-- LanaiBaseInfo.h - Top level definitions for Lanai MC ----*- C++ -*-===//
+//===-- GaspardBaseInfo.h - Top level definitions for Gaspard MC ----*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -7,27 +7,27 @@
 //===----------------------------------------------------------------------===//
 //
 // This file contains small standalone helper functions and enum definitions for
-// the Lanai target useful for the compiler back-end and the MC libraries.
+// the Gaspard target useful for the compiler back-end and the MC libraries.
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_LIB_TARGET_LANAI_MCTARGETDESC_LANAIBASEINFO_H
-#define LLVM_LIB_TARGET_LANAI_MCTARGETDESC_LANAIBASEINFO_H
+#ifndef LLVM_LIB_TARGET_Gaspard_MCTARGETDESC_GaspardBASEINFO_H
+#define LLVM_LIB_TARGET_Gaspard_MCTARGETDESC_GaspardBASEINFO_H
 
-#include "LanaiMCTargetDesc.h"
+#include "GaspardMCTargetDesc.h"
 #include "llvm/MC/MCExpr.h"
 #include "llvm/Support/DataTypes.h"
 #include "llvm/Support/ErrorHandling.h"
 
 namespace llvm {
 
-// LanaiII - This namespace holds all of the target specific flags that
+// GaspardII - This namespace holds all of the target specific flags that
 // instruction info tracks.
-namespace LanaiII {
+namespace GaspardII {
 // Target Operand Flag enum.
 enum TOF {
   //===------------------------------------------------------------------===//
-  // Lanai Specific MachineOperand flags.
+  // Gaspard Specific MachineOperand flags.
   MO_NO_FLAG,
 
   // MO_ABS_HI/LO - Represents the hi or low part of an absolute symbol
@@ -35,84 +35,84 @@ enum TOF {
   MO_ABS_HI,
   MO_ABS_LO,
 };
-} // namespace LanaiII
+} // namespace GaspardII
 
-static inline unsigned getLanaiRegisterNumbering(unsigned Reg) {
+static inline unsigned getGaspardRegisterNumbering(unsigned Reg) {
   switch (Reg) {
-  case Lanai::R0:
+  case Gaspard::R0:
     return 0;
-  case Lanai::R1:
+  case Gaspard::R1:
     return 1;
-  case Lanai::R2:
-  case Lanai::PC:
+  case Gaspard::R2:
+  case Gaspard::PC:
     return 2;
-  case Lanai::R3:
+  case Gaspard::R3:
     return 3;
-  case Lanai::R4:
-  case Lanai::SP:
+  case Gaspard::R4:
+  case Gaspard::SP:
     return 4;
-  case Lanai::R5:
-  case Lanai::FP:
+  case Gaspard::R5:
+  case Gaspard::FP:
     return 5;
-  case Lanai::R6:
+  case Gaspard::R6:
     return 6;
-  case Lanai::R7:
+  case Gaspard::R7:
     return 7;
-  case Lanai::R8:
-  case Lanai::RV:
+  case Gaspard::R8:
+  case Gaspard::RV:
     return 8;
-  case Lanai::R9:
+  case Gaspard::R9:
     return 9;
-  case Lanai::R10:
-  case Lanai::RR1:
+  case Gaspard::R10:
+  case Gaspard::RR1:
     return 10;
-  case Lanai::R11:
-  case Lanai::RR2:
+  case Gaspard::R11:
+  case Gaspard::RR2:
     return 11;
-  case Lanai::R12:
+  case Gaspard::R12:
     return 12;
-  case Lanai::R13:
+  case Gaspard::R13:
     return 13;
-  case Lanai::R14:
+  case Gaspard::R14:
     return 14;
-  case Lanai::R15:
-  case Lanai::RCA:
+  case Gaspard::R15:
+  case Gaspard::RCA:
     return 15;
-  case Lanai::R16:
+  case Gaspard::R16:
     return 16;
-  case Lanai::R17:
+  case Gaspard::R17:
     return 17;
-  case Lanai::R18:
+  case Gaspard::R18:
     return 18;
-  case Lanai::R19:
+  case Gaspard::R19:
     return 19;
-  case Lanai::R20:
+  case Gaspard::R20:
     return 20;
-  case Lanai::R21:
+  case Gaspard::R21:
     return 21;
-  case Lanai::R22:
+  case Gaspard::R22:
     return 22;
-  case Lanai::R23:
+  case Gaspard::R23:
     return 23;
-  case Lanai::R24:
+  case Gaspard::R24:
     return 24;
-  case Lanai::R25:
+  case Gaspard::R25:
     return 25;
-  case Lanai::R26:
+  case Gaspard::R26:
     return 26;
-  case Lanai::R27:
+  case Gaspard::R27:
     return 27;
-  case Lanai::R28:
+  case Gaspard::R28:
     return 28;
-  case Lanai::R29:
+  case Gaspard::R29:
     return 29;
-  case Lanai::R30:
+  case Gaspard::R30:
     return 30;
-  case Lanai::R31:
+  case Gaspard::R31:
     return 31;
   default:
     llvm_unreachable("Unknown register number!");
   }
 }
 } // namespace llvm
-#endif // LLVM_LIB_TARGET_LANAI_MCTARGETDESC_LANAIBASEINFO_H
+#endif // LLVM_LIB_TARGET_Gaspard_MCTARGETDESC_GaspardBASEINFO_H
