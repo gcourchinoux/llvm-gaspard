@@ -1,4 +1,4 @@
-//===-- LanaiELFObjectWriter.cpp - Lanai ELF Writer -----------------------===//
+//===-- GaspardELFObjectWriter.cpp - Gaspard ELF Writer -----------------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "MCTargetDesc/LanaiBaseInfo.h"
-#include "MCTargetDesc/LanaiFixupKinds.h"
+#include "MCTargetDesc/GaspardBaseInfo.h"
+#include "MCTargetDesc/GaspardFixupKinds.h"
 #include "llvm/BinaryFormat/ELF.h"
 #include "llvm/MC/MCELFObjectWriter.h"
 #include "llvm/MC/MCObjectWriter.h"
@@ -17,11 +17,11 @@ using namespace llvm;
 
 namespace {
 
-class LanaiELFObjectWriter : public MCELFObjectTargetWriter {
+class GaspardELFObjectWriter : public MCELFObjectTargetWriter {
 public:
-  explicit LanaiELFObjectWriter(uint8_t OSABI);
+  explicit GaspardELFObjectWriter(uint8_t OSABI);
 
-  ~LanaiELFObjectWriter() override = default;
+  ~GaspardELFObjectWriter() override = default;
 
 protected:
   unsigned getRelocType(MCContext &Ctx, const MCValue &Target,
@@ -32,38 +32,38 @@ protected:
 
 } // end anonymous namespace
 
-LanaiELFObjectWriter::LanaiELFObjectWriter(uint8_t OSABI)
-    : MCELFObjectTargetWriter(/*Is64Bit_=*/false, OSABI, ELF::EM_LANAI,
+GaspardELFObjectWriter::GaspardELFObjectWriter(uint8_t OSABI)
+    : MCELFObjectTargetWriter(/*Is64Bit_=*/false, OSABI, ELF::EM_GASPARD,
                               /*HasRelocationAddend_=*/true) {}
 
-unsigned LanaiELFObjectWriter::getRelocType(MCContext & /*Ctx*/,
+unsigned GaspardELFObjectWriter::getRelocType(MCContext & /*Ctx*/,
                                             const MCValue & /*Target*/,
                                             const MCFixup &Fixup,
                                             bool /*IsPCRel*/) const {
   unsigned Type;
   unsigned Kind = static_cast<unsigned>(Fixup.getKind());
   switch (Kind) {
-  case Lanai::FIXUP_LANAI_21:
-    Type = ELF::R_LANAI_21;
+  case Gaspard::FIXUP_Gaspard_21:
+    Type = ELF::R_Gaspard_21;
     break;
-  case Lanai::FIXUP_LANAI_21_F:
-    Type = ELF::R_LANAI_21_F;
+  case Gaspard::FIXUP_Gaspard_21_F:
+    Type = ELF::R_Gaspard_21_F;
     break;
-  case Lanai::FIXUP_LANAI_25:
-    Type = ELF::R_LANAI_25;
+  case Gaspard::FIXUP_Gaspard_25:
+    Type = ELF::R_Gaspard_25;
     break;
-  case Lanai::FIXUP_LANAI_32:
+  case Gaspard::FIXUP_Gaspard_32:
   case FK_Data_4:
-    Type = ELF::R_LANAI_32;
+    Type = ELF::R_Gaspard_32;
     break;
-  case Lanai::FIXUP_LANAI_HI16:
-    Type = ELF::R_LANAI_HI16;
+  case Gaspard::FIXUP_Gaspard_HI16:
+    Type = ELF::R_Gaspard_HI16;
     break;
-  case Lanai::FIXUP_LANAI_LO16:
-    Type = ELF::R_LANAI_LO16;
+  case Gaspard::FIXUP_Gaspard_LO16:
+    Type = ELF::R_Gaspard_LO16;
     break;
-  case Lanai::FIXUP_LANAI_NONE:
-    Type = ELF::R_LANAI_NONE;
+  case Gaspard::FIXUP_Gaspard_NONE:
+    Type = ELF::R_Gaspard_NONE;
     break;
 
   default:
@@ -72,14 +72,14 @@ unsigned LanaiELFObjectWriter::getRelocType(MCContext & /*Ctx*/,
   return Type;
 }
 
-bool LanaiELFObjectWriter::needsRelocateWithSymbol(const MCSymbol & /*SD*/,
+bool GaspardELFObjectWriter::needsRelocateWithSymbol(const MCSymbol & /*SD*/,
                                                    unsigned Type) const {
   switch (Type) {
-  case ELF::R_LANAI_21:
-  case ELF::R_LANAI_21_F:
-  case ELF::R_LANAI_25:
-  case ELF::R_LANAI_32:
-  case ELF::R_LANAI_HI16:
+  case ELF::R_Gaspard_21:
+  case ELF::R_Gaspard_21_F:
+  case ELF::R_Gaspard_25:
+  case ELF::R_Gaspard_32:
+  case ELF::R_Gaspard_HI16:
     return true;
   default:
     return false;
@@ -87,6 +87,6 @@ bool LanaiELFObjectWriter::needsRelocateWithSymbol(const MCSymbol & /*SD*/,
 }
 
 std::unique_ptr<MCObjectTargetWriter>
-llvm::createLanaiELFObjectWriter(uint8_t OSABI) {
-  return std::make_unique<LanaiELFObjectWriter>(OSABI);
+llvm::createGaspardELFObjectWriter(uint8_t OSABI) {
+  return std::make_unique<GaspardELFObjectWriter>(OSABI);
 }

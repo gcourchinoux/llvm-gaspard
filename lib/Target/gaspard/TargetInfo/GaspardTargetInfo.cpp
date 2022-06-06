@@ -17,6 +17,6 @@ Target &llvm::getTheGaspardTarget() {
 }
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeGaspardTargetInfo() {
-  RegisterTarget<Triple::Gaspard> X(getTheGaspardTarget(), "Gaspard", "Gaspard",
+  RegisterTarget<Triple::gaspard> X(getTheGaspardTarget(), "Gaspard", "Gaspard",
                                   "Gaspard");
 }

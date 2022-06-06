@@ -1,4 +1,4 @@
-//===-- LanaiAsmBackend.cpp - Lanai Assembler Backend ---------------------===//
+//===-- GaspardAsmBackend.cpp - Gaspard Assembler Backend ---------------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "LanaiFixupKinds.h"
-#include "MCTargetDesc/LanaiMCTargetDesc.h"
+#include "GaspardFixupKinds.h"
+#include "MCTargetDesc/GaspardMCTargetDesc.h"
 #include "llvm/MC/MCAsmBackend.h"
 #include "llvm/MC/MCAssembler.h"
 #include "llvm/MC/MCDirectives.h"
@@ -28,12 +28,12 @@ static unsigned adjustFixupValue(unsigned Kind, uint64_t Value) {
   case FK_Data_4:
   case FK_Data_8:
     return Value;
-  case Lanai::FIXUP_LANAI_21:
-  case Lanai::FIXUP_LANAI_21_F:
-  case Lanai::FIXUP_LANAI_25:
-  case Lanai::FIXUP_LANAI_32:
-  case Lanai::FIXUP_LANAI_HI16:
-  case Lanai::FIXUP_LANAI_LO16:
+  case Gaspard::FIXUP_Gaspard_21:
+  case Gaspard::FIXUP_Gaspard_21_F:
+  case Gaspard::FIXUP_Gaspard_25:
+  case Gaspard::FIXUP_Gaspard_32:
+  case Gaspard::FIXUP_Gaspard_HI16:
+  case Gaspard::FIXUP_Gaspard_LO16:
     return Value;
   default:
     llvm_unreachable("Unknown fixup kind!");
@@ -41,11 +41,11 @@ static unsigned adjustFixupValue(unsigned Kind, uint64_t Value) {
 }
 
 namespace {
-class LanaiAsmBackend : public MCAsmBackend {
+class GaspardAsmBackend : public MCAsmBackend {
   Triple::OSType OSType;
 
 public:
-  LanaiAsmBackend(const Target &T, Triple::OSType OST)
+  GaspardAsmBackend(const Target &T, Triple::OSType OST)
       : MCAsmBackend(support::big), OSType(OST) {}
 
   void applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
@@ -66,13 +66,13 @@ public:
   const MCFixupKindInfo &getFixupKindInfo(MCFixupKind Kind) const override;
 
   unsigned getNumFixupKinds() const override {
-    return Lanai::NumTargetFixupKinds;
+    return Gaspard::NumTargetFixupKinds;
   }
 
   bool writeNopData(raw_ostream &OS, uint64_t Count) const override;
 };
 
-bool LanaiAsmBackend::writeNopData(raw_ostream &OS, uint64_t Count) const {
+bool GaspardAsmBackend::writeNopData(raw_ostream &OS, uint64_t Count) const {
   if ((Count % 4) != 0)
     return false;
 
@@ -82,7 +82,7 @@ bool LanaiAsmBackend::writeNopData(raw_ostream &OS, uint64_t Count) const {
   return true;
 }
 
-void LanaiAsmBackend::applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
+void GaspardAsmBackend::applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
                                  const MCValue &Target,
                                  MutableArrayRef<char> Data, uint64_t Value,
                                  bool /*IsResolved*/,
@@ -121,30 +121,30 @@ void LanaiAsmBackend::applyFixup(const MCAssembler &Asm, const MCFixup &Fixup,
 }
 
 std::unique_ptr<MCObjectTargetWriter>
-LanaiAsmBackend::createObjectTargetWriter() const {
-  return createLanaiELFObjectWriter(MCELFObjectTargetWriter::getOSABI(OSType));
+GaspardAsmBackend::createObjectTargetWriter() const {
+  return createGaspardELFObjectWriter(MCELFObjectTargetWriter::getOSABI(OSType));
 }
 
 const MCFixupKindInfo &
-LanaiAsmBackend::getFixupKindInfo(MCFixupKind Kind) const {
-  static const MCFixupKindInfo Infos[Lanai::NumTargetFixupKinds] = {
+GaspardAsmBackend::getFixupKindInfo(MCFixupKind Kind) const {
+  static const MCFixupKindInfo Infos[Gaspard::NumTargetFixupKinds] = {
       // This table *must* be in same the order of fixup_* kinds in
-      // LanaiFixupKinds.h.
+      // GaspardFixupKinds.h.
       // Note: The number of bits indicated here are assumed to be contiguous.
-      //   This does not hold true for LANAI_21 and LANAI_21_F which are applied
+      //   This does not hold true for Gaspard_21 and Gaspard_21_F which are applied
       //   to bits 0x7cffff and 0x7cfffc, respectively. Since the 'bits' counts
       //   here are used only for cosmetic purposes, we set the size to 16 bits
       //   for these 21-bit relocation as llvm/lib/MC/MCAsmStreamer.cpp checks
       //   no bits are set in the fixup range.
       //
       // name          offset bits flags
-      {"FIXUP_LANAI_NONE", 0, 32, 0},
-      {"FIXUP_LANAI_21", 16, 16 /*21*/, 0},
-      {"FIXUP_LANAI_21_F", 16, 16 /*21*/, 0},
-      {"FIXUP_LANAI_25", 7, 25, 0},
-      {"FIXUP_LANAI_32", 0, 32, 0},
-      {"FIXUP_LANAI_HI16", 16, 16, 0},
-      {"FIXUP_LANAI_LO16", 16, 16, 0}};
+      {"FIXUP_Gaspard_NONE", 0, 32, 0},
+      {"FIXUP_Gaspard_21", 16, 16 /*21*/, 0},
+      {"FIXUP_Gaspard_21_F", 16, 16 /*21*/, 0},
+      {"FIXUP_Gaspard_25", 7, 25, 0},
+      {"FIXUP_Gaspard_32", 0, 32, 0},
+      {"FIXUP_Gaspard_HI16", 16, 16, 0},
+      {"FIXUP_Gaspard_LO16", 16, 16, 0}};
 
   if (Kind < FirstTargetFixupKind)
     return MCAsmBackend::getFixupKindInfo(Kind);
@@ -156,7 +156,7 @@ LanaiAsmBackend::getFixupKindInfo(MCFixupKind Kind) const {
 
 } // namespace
 
-MCAsmBackend *llvm::createLanaiAsmBackend(const Target &T,
+MCAsmBackend *llvm::createGaspardAsmBackend(const Target &T,
                                           const MCSubtargetInfo &STI,
                                           const MCRegisterInfo & /*MRI*/,
                                           const MCTargetOptions & /*Options*/) {
@@ -164,5 +164,5 @@ MCAsmBackend *llvm::createLanaiAsmBackend(const Target &T,
   if (!TT.isOSBinFormatELF())
     llvm_unreachable("OS not supported");
 
-  return new LanaiAsmBackend(T, TT.getOS());
+  return new GaspardAsmBackend(T, TT.getOS());
 }
