@@ -452,7 +452,7 @@ let F = 0 in {
       def SRL_R : ShiftRR<"sh$DDDI\t$Rs1, $Rs2, $Rd", []>;
   }
   let JJJJJ = 0b11000 in
-    def SRA_R : ShiftRR<"sha$DDDI\t$Rs1, $Rs2, $Rd", []>;
+    def SRA_R : ShiftRR<"sha$DDDI\tRs1, $Rs2, $Rd", []>;
 }
 
 let F = 1, Defs = [SR] in {

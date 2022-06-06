@@ -23,13 +23,13 @@ let Namespace = "Gaspard" in {
 
 // Integer registers
 foreach i = 0-31 in {
-  def R#i : GaspardReg<i, "r"#i>, DwarfRegNum<[i]>;
+  def R#i : GaspardReg<i, "GPR"#i>, DwarfRegNum<[i]>;
 }
 
 // Register aliases
 let SubRegIndices = [sub_32] in {
-  def PC  : GaspardReg< 2,  "pc",  [R2]>,  DwarfRegAlias<R2>;
-  def SP  : GaspardReg< 4,  "sp",  [R4]>,  DwarfRegAlias<R4>;
+  def PC  : GaspardReg< 2,  "SP",  [R2]>,  DwarfRegAlias<R2>; // stack pointer
+  def SP  : GaspardReg< 4,  "GP",  [R4]>,  DwarfRegAlias<R4>; // global_pointer
   def FP  : GaspardReg< 5,  "fp",  [R5]>,  DwarfRegAlias<R5>;
   def RV  : GaspardReg< 8,  "rv",  [R8]>,  DwarfRegAlias<R8>;
   def RR1 : GaspardReg<10, "rr1", [R10]>, DwarfRegAlias<R10>;
