@@ -73,15 +73,15 @@ bool GaspardInstPrinter::printMemoryLoadIncrement(const MCInst *MI,
                                                 StringRef Opcode,
                                                 int AddOffset) {
   if (isPreIncrementForm(MI, AddOffset)) {
-    OS << "\t" << Opcode << "\t[" << decIncOperator(MI) << "%"
-       << getRegisterName(MI->getOperand(1).getReg()) << "], %"
+    OS << "\t" << Opcode << "\t[" << decIncOperator(MI) << " "
+       << getRegisterName(MI->getOperand(1).getReg()) << "],  "
        << getRegisterName(MI->getOperand(0).getReg());
     return true;
   }
   if (isPostIncrementForm(MI, AddOffset)) {
-    OS << "\t" << Opcode << "\t[%"
+    OS << "\t" << Opcode << "\t[ "
        << getRegisterName(MI->getOperand(1).getReg()) << decIncOperator(MI)
-       << "], %" << getRegisterName(MI->getOperand(0).getReg());
+       << "],  " << getRegisterName(MI->getOperand(0).getReg());
     return true;
   }
   return false;
@@ -92,14 +92,14 @@ bool GaspardInstPrinter::printMemoryStoreIncrement(const MCInst *MI,
                                                  StringRef Opcode,
                                                  int AddOffset) {
   if (isPreIncrementForm(MI, AddOffset)) {
-    OS << "\t" << Opcode << "\t%" << getRegisterName(MI->getOperand(0).getReg())
-       << ", [" << decIncOperator(MI) << "%"
+    OS << "\t" << Opcode << "\t " << getRegisterName(MI->getOperand(0).getReg())
+       << ", [" << decIncOperator(MI) << " "
        << getRegisterName(MI->getOperand(1).getReg()) << "]";
     return true;
   }
   if (isPostIncrementForm(MI, AddOffset)) {
-    OS << "\t" << Opcode << "\t%" << getRegisterName(MI->getOperand(0).getReg())
-       << ", [%" << getRegisterName(MI->getOperand(1).getReg())
+    OS << "\t" << Opcode << "\t " << getRegisterName(MI->getOperand(0).getReg())
+       << ", [ " << getRegisterName(MI->getOperand(1).getReg())
        << decIncOperator(MI) << "]";
     return true;
   }
@@ -109,10 +109,10 @@ bool GaspardInstPrinter::printMemoryStoreIncrement(const MCInst *MI,
 bool GaspardInstPrinter::printAlias(const MCInst *MI, raw_ostream &OS) {
   switch (MI->getOpcode()) {
   case Gaspard::LDW_RI:
-    // ld 4[*%rN], %rX => ld [++imm], %rX
-    // ld -4[*%rN], %rX => ld [--imm], %rX
-    // ld 4[%rN*], %rX => ld [imm++], %rX
-    // ld -4[%rN*], %rX => ld [imm--], %rX
+    // ld 4[* rN],  rX => ld [++imm],  rX
+    // ld -4[* rN],  rX => ld [--imm],  rX
+    // ld 4[ rN*],  rX => ld [imm++],  rX
+    // ld -4[ rN*],  rX => ld [imm--],  rX
     return printMemoryLoadIncrement(MI, OS, "ld", 4);
   case Gaspard::LDHs_RI:
     return printMemoryLoadIncrement(MI, OS, "ld.h", 2);
@@ -123,10 +123,10 @@ bool GaspardInstPrinter::printAlias(const MCInst *MI, raw_ostream &OS) {
   case Gaspard::LDBz_RI:
     return printMemoryLoadIncrement(MI, OS, "uld.b", 1);
   case Gaspard::SW_RI:
-    // st %rX, 4[*%rN] => st %rX, [++imm]
-    // st %rX, -4[*%rN] => st %rX, [--imm]
-    // st %rX, 4[%rN*] => st %rX, [imm++]
-    // st %rX, -4[%rN*] => st %rX, [imm--]
+    // st  rX, 4[* rN] => st  rX, [++imm]
+    // st  rX, -4[* rN] => st  rX, [--imm]
+    // st  rX, 4[ rN*] => st  rX, [imm++]
+    // st  rX, -4[ rN*] => st  rX, [imm--]
     return printMemoryStoreIncrement(MI, OS, "st", 4);
   case Gaspard::STH_RI:
     return printMemoryStoreIncrement(MI, OS, "st.h", 2);
@@ -151,7 +151,7 @@ void GaspardInstPrinter::printOperand(const MCInst *MI, unsigned OpNo,
   assert((Modifier == 0 || Modifier[0] == 0) && "No modifiers supported");
   const MCOperand &Op = MI->getOperand(OpNo);
   if (Op.isReg())
-    OS << "%" << getRegisterName(Op.getReg());
+    OS << " " << getRegisterName(Op.getReg());
   else if (Op.isImm())
     OS << formatHex(Op.getImm());
   else {
@@ -216,7 +216,7 @@ static void printMemoryBaseRegister(raw_ostream &OS, const unsigned AluCode,
   OS << "[";
   if (LPAC::isPreOp(AluCode))
     OS << "*";
-  OS << "%" << GaspardInstPrinter::getRegisterName(RegOp.getReg());
+  OS << " " << GaspardInstPrinter::getRegisterName(RegOp.getReg());
   if (LPAC::isPostOp(AluCode))
     OS << "*";
   OS << "]";
@@ -262,11 +262,11 @@ void GaspardInstPrinter::printMemRrOperand(const MCInst *MI, int OpNo,
   OS << "[";
   if (LPAC::isPreOp(AluCode))
     OS << "*";
-  OS << "%" << getRegisterName(RegOp.getReg());
+  OS << " " << getRegisterName(RegOp.getReg());
   if (LPAC::isPostOp(AluCode))
     OS << "*";
   OS << " " << LPAC::GaspardAluCodeToString(AluCode) << " ";
-  OS << "%" << getRegisterName(OffsetOp.getReg());
+  OS << " " << getRegisterName(OffsetOp.getReg());
   OS << "]";
 }
 

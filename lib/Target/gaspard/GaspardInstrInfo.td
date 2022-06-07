@@ -706,15 +706,15 @@ let isBranch = 1, isBarrier = 1, isTerminator = 1, hasDelaySlot = 1 in {
 multiclass SF<bits<3> op2Val, string AsmStr> {
   let F = 1, Rd = R0.Num, JJJJJ = 0, Defs = [SR], DDDI = 0 in
     def _RR : InstRR<op2Val, (outs), (ins GPR:$Rs1, GPR:$Rs2),
-                     !strconcat(AsmStr, "\t$Rs1, $Rs2, %r0"),
+                     !strconcat(AsmStr, "\t$Rs1, $Rs2, r0"),
                      [(GaspardSetFlag (i32 GPR:$Rs1), (i32 GPR:$Rs2))]>;
   let F = 1, Rd = R0.Num, H = 0, Defs = [SR] in
     def _RI_LO : InstRI<op2Val, (outs), (ins GPR:$Rs1, i32lo16z:$imm16),
-                     !strconcat(AsmStr, "\t$Rs1, $imm16, %r0"),
+                     !strconcat(AsmStr, "\t$Rs1, $imm16, r0"),
                      [(GaspardSetFlag (i32 GPR:$Rs1), i32lo16z:$imm16)]>;
   let F = 1, Rd = R0.Num, H = 1, Defs = [SR] in
     def _RI_HI : InstRI<op2Val, (outs), (ins GPR:$Rs1, i32hi16:$imm16),
-                     !strconcat(AsmStr, "\t$Rs1, $imm16, %r0"),
+                     !strconcat(AsmStr, "\t$Rs1, $imm16, r0"),
                      [(GaspardSetFlag (i32 GPR:$Rs1), i32hi16:$imm16)]>;
 }
 let isCodeGenOnly = 1, isCompare = 1 in {
@@ -731,7 +731,7 @@ let isCall = 1, hasDelaySlot = 1, isCodeGenOnly = 1, Uses = [SP],
 let isReturn = 1, isTerminator = 1, hasDelaySlot = 1, isBarrier = 1,
     Uses = [RCA] in {
   def RET : InstRM<0b0, (outs), (ins),
-                   "ld\t-4[%fp], %pc ! return",
+                   "ld\t-4[fp], pc ! return",
                    [(RetFlag)]> {
     let Rd = PC.Num;
     let Rs1 = FP.Num;
