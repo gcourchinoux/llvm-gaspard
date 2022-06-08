@@ -26,7 +26,7 @@ get_next_virtual_adress:                ! @get_next_virtual_adress
 	ld	0[ fp],  GPR9
 	sha	 GPR9, -0x1f,  GPR12
 	sh	 GPR12, -0x1d,  GPR12
-	add	 GPR9,  GPR12,  GPR9
+	add	 GPR9,  GPR12
 	sha	 GPR9, -0x3,  GPR9
 	sub.f	 GPR3,  GPR9, r0
 	bge	.LBB0_4
@@ -41,7 +41,7 @@ get_next_virtual_adress:                ! @get_next_virtual_adress
 	add	 GPR12, 0x1,  GPR13
 	sub.f	 GPR13,  GPR12, r0
 	sult	 GPR12
-	add	 GPR9,  GPR12,  GPR9
+	add	 GPR9,  GPR12
 	st	 GPR13, 4[ GPR3]
 	bt	.LBB0_3
 	st	 GPR9, 0[ GPR3]
@@ -139,7 +139,7 @@ init_pagination:                        ! @init_pagination
 	ld	0[ GPR3],  GPR9
 	ld	-12[ fp],  GPR12
 	sh	 GPR12, 0x3,  GPR12
-	add	 GPR9,  GPR12,  GPR9
+	add	 GPR9,  GPR12
 	ld	-20[ fp],  GPR12
 	st	 GPR12, 20[ GPR9]
 	ld	-24[ fp],  GPR12
@@ -161,7 +161,7 @@ init_pagination:                        ! @init_pagination
 	ld	0[ GPR3],  GPR9
 	ld	-12[ fp],  GPR12
 	sh	 GPR12, 0x3,  GPR12
-	add	 GPR9,  GPR12,  GPR13
+	add	 GPR9,  GPR12
 	uld.h	0[ GPR13],  GPR13
 	or	 GPR13, 0x100,  GPR13
 	st.h	 GPR13, [ GPR9 add  GPR12]
@@ -343,7 +343,7 @@ init_interrupts:                        ! @init_interrupts
 	ld	0[ GPR3],  GPR3
 	ld	-12[ fp],  GPR9
 	sh	 GPR9, 0x4,  GPR9
-	add	 GPR3,  GPR9,  GPR3
+	add	 GPR3,  GPR9
 	st	 GPR0, 12[ GPR3]
 	bt	.LBB6_3
 	st	 GPR0, 8[ GPR3]

@@ -291,7 +291,7 @@ multiclass ALUarith<bits<3> subOp, string AsmStr, SDNode OpNode,
   // Register Register
   let JJJJJ = 0 in
     def R : InstRR<subOp, (outs GPR:$Rd), (ins GPR:$Rs1, GPR:$Rs2, pred:$DDDI),
-                   !strconcat(AsmStr, "$DDDI\t$Rs1, $Rs2, $Rd"),
+                   !strconcat(AsmStr, "$DDDI\t$Rs1, $Rs2"),
                    [(set GPR:$Rd, (OpNode GPR:$Rs1, GPR:$Rs2))]>;
 }
 
