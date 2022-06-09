@@ -275,11 +275,11 @@ multiclass ALUbase<bits<3> subOp, string AsmStr, SDNode OpNode,
   // Register Immediate
   let H = 0 in
     def LO : InstRI<subOp, (outs GPR:$Rd), (ins GPR:$Rs1, LoExt:$imm16),
-                    !strconcat(AsmStr, "\t$Rs1, $imm16, $Rd"),
+                    !strconcat(AsmStr, "\t$Rs1, $imm16"),
                     loPattern>;
   let H = 1 in
     def HI : InstRI<subOp, (outs GPR:$Rd), (ins GPR:$Rs1, HiExt:$imm16),
-                    !strconcat(AsmStr, "\t$Rs1, $imm16, $Rd"),
+                    !strconcat(AsmStr, "\t$Rs1, $imm16"),
                     hiPattern>;
 
 }
@@ -304,7 +304,7 @@ multiclass ALUlogic<bits<3> subOp, string AsmStr, SDNode OpNode,
   // Register Register
   let JJJJJ = 0 in
     def R : InstRR<subOp, (outs GPR:$Rd), (ins GPR:$Rs1, GPR:$Rs2, pred:$DDDI),
-                   !strconcat(AsmStr, "$DDDI\t$Rs1, $Rs2, $Rd"),
+                   !strconcat(AsmStr, "$DDDI\t$Rs1, $Rs2"),
                    [(set GPR:$Rd, (OpNode GPR:$Rs1, GPR:$Rs2))]>;
 }
 
